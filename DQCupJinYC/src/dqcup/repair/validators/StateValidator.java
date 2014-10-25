@@ -31,7 +31,8 @@ public class StateValidator implements Validator {
 							"OR","PA","RI","SC",
 							"SD","TN","TX","UT",
 							"VT","VA","WA","WV",
-							"WI","WY","DC"};
+							"WI","WY","DC","PR",
+							"VI","FM","GU","AS","MP"};
 		
 		for (String str : stateSet) {
 			if (str.equals(value)) return true;
