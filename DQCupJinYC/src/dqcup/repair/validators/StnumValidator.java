@@ -1,23 +1,25 @@
 package dqcup.repair.validators;
 
+import dqcup.repair.attrs.rawAttrs;
+
 public class StnumValidator implements Validator {
 
 	@Override
 	public int getIndex() {
 		// TODO Auto-generated method stub
-		return 0;
+		return rawAttrs.STNUM_INDEX;
 	}
 
 	@Override
 	public String getColName() {
 		// TODO Auto-generated method stub
-		return null;
+		return rawAttrs.STNUM;
 	}
 
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }
