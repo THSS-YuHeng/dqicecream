@@ -34,4 +34,6 @@ public class rawAttrs {
 	public static final int AGE_INDEX = 13;
 	public static final int SALARY_INDEX = 14;
 	public static final int TAX_INDEX = 15;
+	
+	public static final String[] RAWS_STRINGS = {RUID,CUID,SSN,FNAME,MINIT,LNAME,STNUM,STADD,APMT,CITY,STATE,ZIP,BIRTH,AGE,SALARY,TAX};
 }
