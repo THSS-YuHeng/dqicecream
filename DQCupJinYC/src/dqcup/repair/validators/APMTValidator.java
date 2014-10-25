@@ -17,7 +17,7 @@ public class APMTValidator implements Validator {
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

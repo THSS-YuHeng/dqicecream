@@ -1,23 +1,33 @@
 package dqcup.repair.validators;
 
+import dqcup.repair.attrs.rawAttrs;
+
 public class SalaryValidator implements Validator {
 
 	@Override
 	public int getIndex() {
 		// TODO Auto-generated method stub
-		return 0;
+		return rawAttrs.SALARY_INDEX;
 	}
 
 	@Override
 	public String getColName() {
 		// TODO Auto-generated method stub
-		return null;
+		return rawAttrs.SALARY;
 	}
 
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
+		try {
+			int sal = Integer.parseInt(value);
+			if ((sal >= 500 && sal <= 20500)||sal==0){
+				return true;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return false;
+		}
 		return false;
 	}
-
 }
