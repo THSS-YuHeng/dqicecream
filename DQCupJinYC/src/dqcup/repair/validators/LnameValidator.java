@@ -2,7 +2,7 @@ package dqcup.repair.validators;
 
 import dqcup.repair.attrs.rawAttrs;
 
-public class FnameValidator implements Validator {
+public class LnameValidator implements Validator {
 
 	@Override
 	public boolean test(String value) {
@@ -22,14 +22,16 @@ public class FnameValidator implements Validator {
 		}
 		return true;
 	}
+
 	@Override
 	public int getIndex() {
 		// TODO Auto-generated method stub
-		return rawAttrs.FNAME_INDEX;
+		return rawAttrs.LNAME_INDEX;
 	}
+
 	@Override
 	public String getColName() {
 		// TODO Auto-generated method stub
-		return rawAttrs.FNAME;
+		return rawAttrs.LNAME;
 	}
 }

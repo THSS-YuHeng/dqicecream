@@ -9,6 +9,7 @@ import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.validators.FnameValidator;
+import dqcup.repair.validators.LnameValidator;
 import dqcup.repair.validators.Validator;
 
 public class DataRepair {
@@ -27,6 +28,7 @@ public class DataRepair {
 		this.result = r;
 		validators = new ArrayList<Validator>();
 		validators.add(new FnameValidator());
+		validators.add(new LnameValidator());
 	}
 
 	public void excute() {
@@ -34,14 +36,14 @@ public class DataRepair {
 		if (tuples == null || tuples.size() == 0) return;
 		for (Tuple tuple : tuples) {
 			for (Validator validator: validators) {
-				if(validator.test(tuple.getValue(rawAttrs.FNAME_INDEX))){
+				if(validator.test(tuple.getValue(validator.getIndex()))){
 					// correct
 				}
 				else {
-					System.out.println(tuple.getValue(rawAttrs.FNAME_INDEX));
+					System.out.println(tuple.getValue(validator.getIndex()));
 					result.add(new RepairedCell(
 							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
-							rawAttrs.FNAME, 
+							validator.getColName(), 
 							""));
 				}
 			}
