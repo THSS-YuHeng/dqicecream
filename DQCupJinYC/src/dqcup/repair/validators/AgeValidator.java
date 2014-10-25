@@ -21,7 +21,7 @@ public class AgeValidator implements Validator {
 		// TODO Auto-generated method stub
 		try {
 			int age = Integer.parseInt(value);
-			if(10 < age || age > 90){
+			if(23 > age || age > 84){
 				return false;
 			}
 		} catch (NumberFormatException e) {

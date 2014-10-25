@@ -1,17 +1,19 @@
 package dqcup.repair.validators;
 
+import dqcup.repair.attrs.rawAttrs;
+
 public class APMTValidator implements Validator {
 
 	@Override
 	public int getIndex() {
 		// TODO Auto-generated method stub
-		return 0;
+		return rawAttrs.APMT_INDEX;
 	}
 
 	@Override
 	public String getColName() {
 		// TODO Auto-generated method stub
-		return null;
+		return rawAttrs.APMT;
 	}
 
 	@Override

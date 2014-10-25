@@ -8,13 +8,21 @@ import java.util.LinkedList;
 import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
+import dqcup.repair.validators.APMTValidator;
+import dqcup.repair.validators.AgeValidator;
 import dqcup.repair.validators.BirthValidator;
 import dqcup.repair.validators.CityValidator;
 import dqcup.repair.validators.FnameValidator;
 import dqcup.repair.validators.LnameValidator;
 import dqcup.repair.validators.MinitValidator;
+import dqcup.repair.validators.SSNValidator;
+import dqcup.repair.validators.STADDValidator;
 import dqcup.repair.validators.SalaryValidator;
+import dqcup.repair.validators.StateValidator;
+import dqcup.repair.validators.StnumValidator;
+import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
+import dqcup.repair.validators.ZipValidator;
 
 public class DataRepair {
 	
@@ -31,12 +39,21 @@ public class DataRepair {
 		this.tuples = t;
 		this.result = r;
 		validators = new ArrayList<Validator>();
-		validators.add(new FnameValidator());
-		validators.add(new LnameValidator());
+		
+		validators.add(new AgeValidator());
+		validators.add(new APMTValidator());
 		validators.add(new BirthValidator());
 		validators.add(new CityValidator());
+		validators.add(new FnameValidator());
+		validators.add(new LnameValidator());
 		validators.add(new MinitValidator());
 		validators.add(new SalaryValidator());
+		validators.add(new SSNValidator());
+		validators.add(new STADDValidator());
+		validators.add(new StateValidator());
+		validators.add(new StnumValidator());
+		validators.add(new TaxValidator());
+		validators.add(new ZipValidator());
 	}
 
 	public void excute() {
