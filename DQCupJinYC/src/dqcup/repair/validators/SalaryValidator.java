@@ -19,6 +19,7 @@ public class SalaryValidator implements Validator {
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
+		if(value == null || value.length() == 0) return false;
 		try {
 			int sal = Integer.parseInt(value);
 			if ((sal >= 500 && sal <= 20500)||sal==0){

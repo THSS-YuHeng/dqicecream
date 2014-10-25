@@ -18,6 +18,7 @@ public class TaxValidator implements Validator {
 
 	@Override
 	public boolean test(String value) {
+		if(value == null || value.length() == 0) return false;
 		// TODO Auto-generated method stub
 		try {
 			Integer.parseInt(value);

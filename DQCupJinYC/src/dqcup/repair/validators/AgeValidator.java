@@ -19,6 +19,7 @@ public class AgeValidator implements Validator {
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
+		if(value == null || value.length() == 0) return false;
 		try {
 			int age = Integer.parseInt(value);
 			if(23 > age || age > 84){

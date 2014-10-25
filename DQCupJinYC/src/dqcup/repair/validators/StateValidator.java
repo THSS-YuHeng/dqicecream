@@ -18,6 +18,7 @@ public class StateValidator implements Validator {
 
 	@Override
 	public boolean test(String value) {
+		if(value == null || value.length() == 0) return false;
 		// TODO Auto-generated method stub
 		String[] stateSet = {"AL","AK","AZ","AR",
 							"CA","CO","CT","DE",

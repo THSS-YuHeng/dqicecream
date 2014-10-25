@@ -20,6 +20,7 @@ public class BirthValidator implements Validator {
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
 		// 7q10-1983
+		if(value == null || value.length() == 0) return false;
 		String[] ss = value.split("-");
 		if( ss.length != 3) {
 			return false;
