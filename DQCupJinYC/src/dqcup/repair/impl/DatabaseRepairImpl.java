@@ -8,6 +8,7 @@ import dqcup.repair.DatabaseRepair;
 import dqcup.repair.DbFileReader;
 import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
+import dqcup.repair.repair.DataRepair;
 
 public class DatabaseRepairImpl implements DatabaseRepair {
 
@@ -17,7 +18,8 @@ public class DatabaseRepairImpl implements DatabaseRepair {
 		LinkedList<Tuple> tuples = DbFileReader.readFile(fileRoute);
 		HashSet<RepairedCell> result = new HashSet<RepairedCell>();
 		
-		// github hello world
+		DataRepair repair = new DataRepair(tuples, result);
+		repair.excute();
 		
 		return result;
 	}
