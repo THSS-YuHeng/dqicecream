@@ -1,11 +1,15 @@
 package dqcup.repair.repair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
 import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
+import dqcup.repair.attrs.rawAttrs;
+import dqcup.repair.validators.FnameValidator;
+import dqcup.repair.validators.Validator;
 
 public class DataRepair {
 	
@@ -13,19 +17,34 @@ public class DataRepair {
 	private HashSet<RepairedCell> result;				//修复结果
 	
 	public HashMap<String, Tuple> correctTable;			//单行数据处理结果
-	public LinkedList<E> errorTable;					//单行数据错误火鬃
+	public LinkedList<ErrorData> errorTable;			//单行数据错误
 
+	public ArrayList<Validator> validators;
+	
 	public DataRepair(LinkedList<Tuple> t, HashSet<RepairedCell> r) {
 		// TODO Auto-generated constructor stub
 		this.tuples = t;
 		this.result = r;
+		validators = new ArrayList<Validator>();
+		validators.add(new FnameValidator());
 	}
 
 	public void excute() {
 		// TODO Auto-generated method stub
 		if (tuples == null || tuples.size() == 0) return;
 		for (Tuple tuple : tuples) {
-			System.out.println(tuple.getValue(3));
+			for (Validator validator: validators) {
+				if(validator.test(tuple.getValue(rawAttrs.FNAME_INDEX))){
+					// correct
+				}
+				else {
+					System.out.println(tuple.getValue(rawAttrs.FNAME_INDEX));
+					result.add(new RepairedCell(
+							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
+							rawAttrs.FNAME, 
+							""));
+				}
+			}
 		}
 	}
 }
