@@ -3,7 +3,6 @@ package dqcup.repair.repair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ public class DataRepair {
 	private HashSet<RepairedCell> result;				//修复结果
 	
 	public HashMap<String, LinkedList<Tuple>> correctTable;			//单行数据处理结果
-	public LinkedList<ErrorData> errorTable;			//单行数据错误
+	public HashMap<String, ErrorData> errorTable;			//单行数据错误
 
 	public ArrayList<Validator> validators;
 	
@@ -39,7 +38,7 @@ public class DataRepair {
 		this.tuples = t;
 		this.result = r;
 		correctTable = new HashMap<String, LinkedList<Tuple>>();
-		errorTable = new LinkedList<ErrorData>();
+		errorTable = new HashMap<String, ErrorData>();
 		validators = new ArrayList<Validator>();
 		
 		validators.add(new AgeValidator());
@@ -60,28 +59,47 @@ public class DataRepair {
 		String lastCUID = "";
 		if (tuples == null || tuples.size() == 0) return;
 		for (Tuple tuple : tuples) {
+			//*************
+			//**处理步骤1
+			//*************
 			for (Validator validator: validators) {
 				if(validator.test(tuple.getValue(validator.getIndex()))){
 					//correct
 				} else {
+					//TODO
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						ErrorData edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.errorFlagSet.set(validator.getIndex());
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					} else {
+						ErrorData edata = errorTable.get(tuple.getValue(rawAttrs.RUID));
+						edata.errorFlagSet.set(validator.getIndex());
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					}
+					/*
 					System.out.println(tuple.getValue(rawAttrs.RUID_INDEX) + "\t" +
 							validator.getColName() + "\t" + 
 							tuple.getValue(validator.getIndex()));
-//					result.add(new RepairedCell(
-//							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
-//							validator.getColName(), 
-//							""));
+					result.add(new RepairedCell(
+							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
+							validator.getColName(), 
+							""));
+					*/
 				}
-			}
-			
+			}						
+			//*************
+			//**处理步骤2
+			//*************
 			if (STADDSTNUMAPMTValidator.test(tuple.getValue(rawAttrs.STADD), 
 					tuple.getValue(rawAttrs.STNUM), tuple.getValue(rawAttrs.APMT))) {
 				//correct
 			} else {
 				//TODO
 			}
-			
-			//处理1结束
+			//*************
+			//**处理步骤3
+			//*************
 			if (correctTable.get(tuple.getValue(rawAttrs.CUID)) == null) { // 不存在
 				inlines(lastCUID);
 				lastCUID = tuple.getValue(rawAttrs.CUID);
@@ -91,7 +109,11 @@ public class DataRepair {
 			} else {														//存在
 				LinkedList<Tuple> list = correctTable.get(tuple.getValue(rawAttrs.CUID));
 				list.add(tuple);
-			}		
+			}
+			
+			//*************
+			//**错误结果统计与修复
+			//*************
 		}
 	}
 
@@ -113,7 +135,6 @@ public class DataRepair {
 			
 			Set<String> keys = tmp.keySet();
 			int max = 0;
-			@SuppressWarnings("unused")
 			String correct = "";
 			for(String key: keys){  
 	            if (tmp.get(key) >= max) {
