@@ -10,6 +10,7 @@ import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.validators.AgeValidator;
+import dqcup.repair.validators.BirthAgeValidator;
 import dqcup.repair.validators.BirthValidator;
 import dqcup.repair.validators.CityValidator;
 import dqcup.repair.validators.FnameValidator;
@@ -17,6 +18,7 @@ import dqcup.repair.validators.LnameValidator;
 import dqcup.repair.validators.MinitValidator;
 import dqcup.repair.validators.SSNValidator;
 import dqcup.repair.validators.STADDSTNUMAPMTValidator;
+import dqcup.repair.validators.SalaryTaxValidator;
 import dqcup.repair.validators.SalaryValidator;
 import dqcup.repair.validators.StateValidator;
 import dqcup.repair.validators.TaxValidator;
@@ -93,6 +95,20 @@ public class DataRepair {
 			//*************
 			if (STADDSTNUMAPMTValidator.test(tuple.getValue(rawAttrs.STADD), 
 					tuple.getValue(rawAttrs.STNUM), tuple.getValue(rawAttrs.APMT))) {
+				//correct
+			} else {
+				//TODO
+			}
+			
+			if (SalaryTaxValidator.test(tuple.getValue(rawAttrs.SALARY), 
+					tuple.getValue(rawAttrs.TAX))) {
+				//correct
+			} else {
+				//TODO
+			}
+			
+			if (BirthAgeValidator.test(tuple.getValue(rawAttrs.BIRTH), 
+					tuple.getValue(rawAttrs.AGE))) {
 				//correct
 			} else {
 				//TODO
