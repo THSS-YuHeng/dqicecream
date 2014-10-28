@@ -27,6 +27,10 @@ public class Tuple {
 		String columnName = columnNames.get(columnIndex);
 		return getValue(columnName);
 	}
+	
+	public void setValue(String colomn, String value) {
+		this.cells.put(colomn, value);
+	}
 
 	/**
 	 * @return the columnNames

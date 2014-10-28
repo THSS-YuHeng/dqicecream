@@ -109,11 +109,21 @@ public class DataRepair {
 			} else {														//存在
 				LinkedList<Tuple> list = correctTable.get(tuple.getValue(rawAttrs.CUID));
 				list.add(tuple);
-			}
-			
-			//*************
-			//**错误结果统计与修复
-			//*************
+			}		
+		}		
+		//*************
+		//**错误结果统计与修复
+		//************* 
+		for (String	key : errorTable.keySet()) {
+			ErrorData edata = errorTable.get(key);
+			for (int i = edata.errorFlagSet.nextSetBit(0); i >= 0; i = edata.errorFlagSet.nextSetBit(i+1)) {
+			    // operate on index i here
+				Tuple spacific = correctTable.get(edata.dataTuple.getValue(rawAttrs.CUID)).getFirst();
+				result.add(new RepairedCell(
+						Integer.parseInt(key), 
+						rawAttrs.RAWS_STRINGS[i], 
+						spacific.getValue(i)));
+			 }
 		}
 	}
 
@@ -146,12 +156,27 @@ public class DataRepair {
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
 				if (!v.equals(correct)) {
+					/*
 					result.add(new RepairedCell(
 							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
 							rawAttrs.RAWS_STRINGS[i], 
 							correct));
-				}
+					*/
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						ErrorData edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.errorFlagSet.set(i);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					} else {
+						ErrorData edata = errorTable.get(tuple.getValue(rawAttrs.RUID));
+						edata.errorFlagSet.set(i);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					}
+				}				
 			}
+			Tuple cotuple = correctTable.get(CUID).getFirst();
+			cotuple.setValue(rawAttrs.RAWS_STRINGS[i], correct);
+			correctTable.get(CUID).set(0, cotuple);
 		}
 	}
 }
