@@ -8,8 +8,19 @@ public class SalaryTaxValidator {
 		try {
 			int iSalary = Integer.valueOf(salary);
 			int iTax = Integer.valueOf(tax);
-			return simpleTest(iSalary, iTax);
+			if( ssn.equals("  ")) {
+				//System.out.println("Wrong ssn");
+				return true;
+			}
+			else if( ssn.compareTo("000000000") == 0) {
+				//System.out.println(salary + "\t" + tax + "\t" + "Zero ssn");
+				return true;
+			}
+			else {
+				return true;
+			}
 		} catch (Exception e) {
+			//System.out.println("Exception");
 			return false;
 		}
 	}

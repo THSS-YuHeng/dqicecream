@@ -6,7 +6,8 @@ import dqcup.repair.Tuple;
 
 public class ErrorData {
 	BitSet errorFlagSet;
-	Tuple dataTuple;	
+	Tuple dataTuple;
+	Tuple originalTuple;
 	
 	public ErrorData() {
 		// TODO Auto-generated constructor stub

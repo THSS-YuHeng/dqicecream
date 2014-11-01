@@ -10,7 +10,7 @@ public class BirthAgeValidator {
 		int month = Integer.parseInt(birthss[0]);
 		int day = Integer.parseInt(birthss[1]);
 		int year = Integer.parseInt(birthss[2]);
-		System.out.println(iage+year);
+		//System.out.println(iage+year);
 		if( iage + year != 2013) {
 			return false;
 		}
