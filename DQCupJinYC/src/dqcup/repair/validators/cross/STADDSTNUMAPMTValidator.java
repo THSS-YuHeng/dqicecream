@@ -1,8 +1,10 @@
-package dqcup.repair.validators;
+package dqcup.repair.validators.cross;
+
+import java.util.BitSet;
 
 public class STADDSTNUMAPMTValidator {
 
-	public static boolean test(String STADD, String STNUM, String APMT) {
+	public static boolean test(String STADD, String STNUM, String APMT, BitSet errorflagSet) {
 		// TODO Auto-generated constructor stub
 		if (STADD.startsWith("PO Box ")) {
 			return STNUM.isEmpty() && APMT.isEmpty();

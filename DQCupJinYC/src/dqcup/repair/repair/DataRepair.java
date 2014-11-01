@@ -10,20 +10,20 @@ import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.validators.AgeValidator;
-import dqcup.repair.validators.BirthAgeValidator;
 import dqcup.repair.validators.BirthValidator;
 import dqcup.repair.validators.CityValidator;
 import dqcup.repair.validators.FnameValidator;
 import dqcup.repair.validators.LnameValidator;
 import dqcup.repair.validators.MinitValidator;
 import dqcup.repair.validators.SSNValidator;
-import dqcup.repair.validators.STADDSTNUMAPMTValidator;
-import dqcup.repair.validators.SalaryTaxValidator;
 import dqcup.repair.validators.SalaryValidator;
 import dqcup.repair.validators.StateValidator;
 import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
+import dqcup.repair.validators.cross.BirthAgeValidator;
+import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
+import dqcup.repair.validators.cross.SalaryTaxValidator;
 
 public class DataRepair {
 	
@@ -62,54 +62,63 @@ public class DataRepair {
 		if (tuples == null || tuples.size() == 0) return;
 		for (Tuple tuple : tuples) {
 			//*************
-			//**处理步骤1
+			//** step 1
 			//*************
+			ErrorData edata = new ErrorData();
+			edata.dataTuple = tuple;
 			for (Validator validator: validators) {
 				if(validator.test(tuple.getValue(validator.getIndex()))){
 					//correct
 				} else {
 					//TODO
-					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
-						ErrorData edata = new ErrorData();
-						edata.dataTuple = tuple;
-						edata.errorFlagSet.set(validator.getIndex());
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					} else {
-						ErrorData edata = errorTable.get(tuple.getValue(rawAttrs.RUID));
-						edata.errorFlagSet.set(validator.getIndex());
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					}
-					tuple.setValue(validator.getColName(), " ");
-					/*
-					System.out.println(tuple.getValue(rawAttrs.RUID_INDEX) + "\t" +
-							validator.getColName() + "\t" + 
-							tuple.getValue(validator.getIndex()));
-					result.add(new RepairedCell(
-							Integer.parseInt(tuple.getValue(rawAttrs.RUID_INDEX)), 
-							validator.getColName(), 
-							""));
-					*/
+					edata.errorFlagSet.set(validator.getIndex());
+					errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					tuple.setValue(validator.getColName(), "  ");
 				}
 			}						
 			//*************
 			//**处理步骤2
 			//*************
-			if (STADDSTNUMAPMTValidator.test(tuple.getValue(rawAttrs.STADD), 
-					tuple.getValue(rawAttrs.STNUM), tuple.getValue(rawAttrs.APMT))) {
+			if (!edata.errorFlagSet.get(rawAttrs.STADD_INDEX)&&
+				!edata.errorFlagSet.get(rawAttrs.STNUM_INDEX)&&
+				!edata.errorFlagSet.get(rawAttrs.APMT_INDEX)&&
+				STADDSTNUMAPMTValidator.test(
+						tuple.getValue(rawAttrs.STADD), 
+						tuple.getValue(rawAttrs.STNUM), 
+						tuple.getValue(rawAttrs.APMT),
+						edata.errorFlagSet
+						)) {
 				//correct
 			} else {
 				//TODO
+				edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+				edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+				edata.errorFlagSet.set(rawAttrs.APMT_INDEX);
+				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+				tuple.setValue(rawAttrs.STADD, "  ");
+				tuple.setValue(rawAttrs.STNUM, "  ");
+				tuple.setValue(rawAttrs.APMT, "  ");
 			}
 			
-			if (SalaryTaxValidator.test(tuple.getValue(rawAttrs.SALARY), 
-					tuple.getValue(rawAttrs.TAX))) {
+			if (!edata.errorFlagSet.get(rawAttrs.SALARY_INDEX)&&
+				!edata.errorFlagSet.get(rawAttrs.TAX_INDEX)&&
+				SalaryTaxValidator.test(
+						tuple.getValue(rawAttrs.SALARY), 
+						tuple.getValue(rawAttrs.TAX),
+						tuple.getValue(rawAttrs.SSN),
+						edata.errorFlagSet)) {
 				//correct
 			} else {
 				//TODO
+				
 			}
 			
-			if (BirthAgeValidator.test(tuple.getValue(rawAttrs.BIRTH), 
-					tuple.getValue(rawAttrs.AGE))) {
+			if (!edata.errorFlagSet.get(rawAttrs.BIRTH_INDEX)&&
+				!edata.errorFlagSet.get(rawAttrs.AGE_INDEX)&&
+				BirthAgeValidator.test(
+					tuple.getValue(rawAttrs.BIRTH), 
+					tuple.getValue(rawAttrs.AGE),
+					edata.errorFlagSet)) {
 				//correct
 			} else {
 				//TODO
