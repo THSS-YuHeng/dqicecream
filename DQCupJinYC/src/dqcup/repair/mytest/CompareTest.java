@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*; 
 
 import dqcup.repair.DatabaseRepair;
 import dqcup.repair.RepairedCell;
@@ -65,14 +63,14 @@ public class CompareTest {
 		long startTime = 0, endTime = 0, totalTime = 0;
 		double avgFindAccuracy = 0, avgRepairAccuracy = 0;
 		Set<RepairedCell> found, truth;
-
+		 
 		DatabaseRepair dr = new DatabaseRepairImpl();
 		truth = TestUtil.readTruth("../compare/Truth-easy.txt");
 		if (truth.size() != 0) {
 			startTime = System.currentTimeMillis();
 			found = dr.repair("../compare/DB-easy.txt");
 			endTime = System.currentTimeMillis();
-			ouputFound(found, "../compare/out-easy.txt");
+			ouputFound(found, "../compare/"+(new Date()).toString()+"out-easy.txt");
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("easy-Time:" + (endTime - startTime));
@@ -89,7 +87,7 @@ public class CompareTest {
 			startTime = System.currentTimeMillis();
 			found = dr.repair("../compare/DB-normal.txt");
 			endTime = System.currentTimeMillis();
-			ouputFound(found, "../compare/out-normal.txt");
+			ouputFound(found, "../compare/"+(new Date()).toString()+"out-normal.txt");
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("normal-Time:" + (endTime - startTime));

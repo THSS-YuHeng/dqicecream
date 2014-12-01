@@ -49,14 +49,18 @@ for o in arr_out:
 
 nfc = 0
 fc = 0
+arr_nfc = []
 for k in d.keys():
     for j in d[k].keys():
         if not d[k][j][1] == 1:
             # print 'not found'
-            print k, j, d[k][j][0]
+            #print k, j, d[k][j][0]
+            arr_nfc.append((k,arr_db[int(k)+1][1],j,d[k][j][0]))
             nfc += 1
         else:
             # print 'found'
             fc += 1
+print nfc, fc
+print '\n'.join([str(u) for u in sorted(arr_nfc, cmp=lambda x,y:cmp(int(x[0]),int(y[0])))])
 outf.close()
 truef.close()
