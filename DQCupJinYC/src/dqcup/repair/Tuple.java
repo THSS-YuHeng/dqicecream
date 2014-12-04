@@ -5,8 +5,10 @@ import java.util.HashMap;
 public class Tuple {
 	private ColumnNames columnNames;
 	private HashMap<String, String> cells;
+	public String tus;
 	
 	public Tuple(ColumnNames columnNames, String tupleLine){
+		tus = tupleLine;
 		cells = new HashMap<String,String>();
 		this.setColumnNames(columnNames);
 		String[] cellValues = tupleLine.split(":");

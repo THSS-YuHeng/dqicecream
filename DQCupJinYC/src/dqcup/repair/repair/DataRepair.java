@@ -138,12 +138,9 @@ public class DataRepair {
 		if (CUID == null || CUID.length() < 1)
 			return;
 		LinkedList<Tuple> list = correctTable.get(CUID);
-		Tuple cotuple = correctTable.get(CUID).getFirst();
+		Tuple cotuple = new Tuple(list.getFirst().getColumnNames(), list.getFirst().tus);		
+		
 		for (int i = 2; i < 16; i++) {
-			
-			if (i == rawAttrs.AGE_INDEX || i == rawAttrs.TAX_INDEX || i == rawAttrs.STADD_INDEX || i == rawAttrs.STNUM_INDEX) {
-				continue;
-			}
 			
 			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
 			for (Tuple tuple : list) {
@@ -171,16 +168,20 @@ public class DataRepair {
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
 				if (!v.equals(correct)) {
-					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
-						ErrorData edata = new ErrorData();
-						edata.dataTuple = tuple;
-						edata.errorFlagSet.set(i);
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					if (i == rawAttrs.AGE_INDEX || i == rawAttrs.TAX_INDEX || i == rawAttrs.STADD_INDEX || i == rawAttrs.STNUM_INDEX) {
+						//do nothing
 					} else {
-						ErrorData edata = errorTable.get(tuple
-								.getValue(rawAttrs.RUID));
-						edata.errorFlagSet.set(i);
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(i);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(i);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
 					}
 				}
 			}			

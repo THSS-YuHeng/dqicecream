@@ -21,7 +21,11 @@ public class STADDSTNUMAPMTValidator {
 		boolean numF = false;
 		boolean addF = false;
 		
-		if (correctAPMT == null) {
+		if (correct.getValue(rawAttrs.CUID).equals("31438")) {
+			System.out.println("here");
+		}
+		
+		if (correctAPMT == null || correctAPMT.equals("")) {
 			correctSTNUM = null;
 			correctSTADD = rawAttrs.STADDfre;
 			PRE = true;
@@ -33,18 +37,18 @@ public class STADDSTNUMAPMTValidator {
 		} else {
 			correctSTNUM = correct.getValue(rawAttrs.STNUM);
 			correctSTADD = correct.getValue(rawAttrs.STADD);
-			if (correctSTNUM == null) {
+			if (correctSTNUM == null || correctSTNUM.equals("")) {
 				numF = true;
 			}
-			if (correctSTADD == null || correctSTADD.startsWith(rawAttrs.STADDfre)) {
-				numF = true;
+			if (correctSTADD == null || correctSTADD.equals("") || correctSTADD.startsWith(rawAttrs.STADDfre)) {
+				addF = true;
 			}
 		}
 		
 		for (int i = 0; i < linkedList.size() - 1; i++) {
 			Tuple tuple = linkedList.get(i);
 			if (PRE) {
-				if (tuple.getValue(rawAttrs.APMT) != null) {
+				if (tuple.getValue(rawAttrs.APMT) != null && !tuple.getValue(rawAttrs.APMT).equals("")) {
 					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
 						ErrorData edata = new ErrorData();
 						edata.dataTuple = tuple;
@@ -57,7 +61,7 @@ public class STADDSTNUMAPMTValidator {
 						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
 					}
 				}
-				if (tuple.getValue(rawAttrs.STNUM) != null) {
+				if (tuple.getValue(rawAttrs.STNUM) != null && !tuple.getValue(rawAttrs.STNUM).equals("")) {
 					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
 						ErrorData edata = new ErrorData();
 						edata.dataTuple = tuple;
@@ -101,7 +105,9 @@ public class STADDSTNUMAPMTValidator {
 							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
 						}
 					}
-				}				
+				}
+				
+				
 			} else {
 				if (!tuple.getValue(rawAttrs.APMT).equals(correctAPMT)) {
 					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
@@ -117,7 +123,7 @@ public class STADDSTNUMAPMTValidator {
 					}
 				}
 				if (numF) {
-					if (tuple.getValue(rawAttrs.STNUM) != null) {
+					if (tuple.getValue(rawAttrs.STNUM) != null && !tuple.getValue(rawAttrs.STNUM).equals("")) {
 						correctSTNUM = tuple.getValue(rawAttrs.STNUM);
 						numF = false;
 					} else {
