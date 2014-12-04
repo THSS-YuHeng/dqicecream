@@ -1,13 +1,9 @@
 # Object file
 *.o
-
 # Ada Library Information
 *.ali
-
 /DQCupJinYC/bin
 *.zip
 *.txt
-
 /DQCupJinYC/src/dqcup/repair/mytest/CompareTest.java
-
-/compare
+compare/
