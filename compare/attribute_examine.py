@@ -6,7 +6,7 @@ arr_db = []
 arr_attri = set()
 for dl in db:
     arr_db.append(dl)
-    arr_attri.add(dl[8])
+    arr_attri.add(dl[9])
 dbf.close()
 
 for a in arr_attri:

@@ -19,7 +19,36 @@ public class CompareTest {
 	 * @param args
 	 * @throws Exception
 	 */
-
+	
+	static void findnotfound(Set<RepairedCell> found, Set<RepairedCell> truth) {
+		HashMap<Integer,HashSet<String>> foundmap = new HashMap<Integer,HashSet<String>>();
+		for(RepairedCell cell:found){
+			HashSet<String> columnIds = null;
+			if(foundmap.get(cell.getRowId())==null){
+				columnIds = new HashSet<String>();
+			}else{
+				columnIds = foundmap.get(cell.getRowId());
+			}
+			columnIds.add(cell.getColumnId());
+			foundmap.put(cell.getRowId(), columnIds);
+		}
+		for(RepairedCell cell:truth){
+			if(foundmap.get(cell.getRowId())!=null){
+				if(foundmap.get(cell.getRowId()).contains(cell.getColumnId())){
+					// do nothing
+				} else {
+					System.out.println("Col not found " + cell.getColumnId().toString() + "\t"
+							+ cell.getRowId() + "\t"
+							+ cell.getValue());
+				}
+			} else {
+				System.out.println("Row not found " + cell.getColumnId().toString() + "\t"
+						+ cell.getRowId() + "\t"
+						+ cell.getValue());
+			}
+		}
+	}
+	
 	static void ouputFound(Set<RepairedCell> found, String fileName) {
 		try {
 			System.out.println(found.size());
@@ -36,6 +65,24 @@ public class CompareTest {
 			e.printStackTrace();
 		}
 	}
+	
+	static void ouputFound(List<RepairedCell> found, String fileName) {
+		try {
+			System.out.println(found.size());
+			BufferedWriter output = new BufferedWriter(new FileWriter(new File(fileName)));
+			for(RepairedCell cell:found){
+				StringBuilder s = new StringBuilder();
+				s.append(Integer.toString(cell.getRowId()) + ","+cell.getColumnId() + "," + cell.getValue()+"\n");
+				output.write(s.toString());
+			}
+			output.flush();
+			output.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	static void compare(Set<RepairedCell> truth, Set<RepairedCell> found){
 		if(found.size()!=0){
 			HashMap<Integer,HashSet<String>> truthMap = new HashMap<Integer,HashSet<String>>();
@@ -70,7 +117,12 @@ public class CompareTest {
 			startTime = System.currentTimeMillis();
 			found = dr.repair("..\\compare\\DB-easy.txt");
 			endTime = System.currentTimeMillis();
+<<<<<<< Updated upstream
 			ouputFound(found, "..\\compare\\"+(new Date()).toString().replace(":", "_")+"out-easy.txt");
+=======
+			findnotfound(found, truth);
+			ouputFound(found, "../compare/out-easy.txt");
+>>>>>>> Stashed changes
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("easy-Time:" + (endTime - startTime));
@@ -87,7 +139,26 @@ public class CompareTest {
 			startTime = System.currentTimeMillis();
 			found = dr.repair("..\\compare\\DB-normal.txt");
 			endTime = System.currentTimeMillis();
+<<<<<<< Updated upstream
 			ouputFound(found, "..\\compare\\"+(new Date()).toString().replace(":", "_")+"out-normal.txt");
+=======
+			ouputFound(found, "../compare/out-normal.txt");
+			findnotfound(found, truth);
+			List<RepairedCell> l=new ArrayList<RepairedCell>();  
+		    l.addAll(found);  
+		    class ComparatorCell implements Comparator<RepairedCell>{
+		   	 public int compare(RepairedCell arg0, RepairedCell arg1) {
+		   		 RepairedCell r0 = arg0;
+		   		 RepairedCell r1 = arg1;
+
+		   		 return r0.getRowId() - r1.getRowId();
+		   	 }
+		   }
+		    ComparatorCell comparator=new ComparatorCell();
+		    Collections.sort(l, comparator);
+		    ouputFound(l, "out-normal-re.txt");
+		    	
+>>>>>>> Stashed changes
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("normal-Time:" + (endTime - startTime));

@@ -117,8 +117,8 @@ public class DataRepair {
 							+ tuple.getValue(rawAttrs.TAX) + "\t"
 							+ tuple.getValue(rawAttrs.SSN));
 					errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					tuple.setValue(rawAttrs.SALARY, "  ");
-					tuple.setValue(rawAttrs.TAX, "  ");
+					tuple.setValue(rawAttrs.SALARY, " ");
+					tuple.setValue(rawAttrs.TAX, " ");
 				}
 			} else {
 				// error already exist
