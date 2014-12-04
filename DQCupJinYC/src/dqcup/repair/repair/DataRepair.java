@@ -86,66 +86,7 @@ public class DataRepair {
 				}
 			}
 			// *************
-			// ** step 2 cross attribute validate
-			// *************
-			if (STADDSTNUMAPMTValidator.test(tuple.getValue(rawAttrs.STADD),
-					tuple.getValue(rawAttrs.STNUM),
-					tuple.getValue(rawAttrs.APMT), edata.errorFlagSet)) {
-				// cross test pass
-			} else {
-				// cross test fail
-				// TODO
-				System.out.println( tuple.getValue(rawAttrs.RUID) + "\t"
-						+ edata.errorFlagSet.get(rawAttrs.STADD_INDEX)
-						+ tuple.getValue(rawAttrs.STADD) + "\t,"
-						+ edata.errorFlagSet.get(rawAttrs.STNUM_INDEX)
-						+ tuple.getValue(rawAttrs.STNUM) + "\t,"
-						+ edata.errorFlagSet.get(rawAttrs.APMT_INDEX)
-						+ tuple.getValue(rawAttrs.APMT));
-				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-				// tuple.setValue(rawAttrs.STADD, "  ");
-				// tuple.setValue(rawAttrs.STNUM, "  ");
-				tuple.setValue(rawAttrs.APMT, " ");
-			}
-
-			if (!edata.errorFlagSet.get(rawAttrs.SALARY_INDEX)
-					&& !edata.errorFlagSet.get(rawAttrs.TAX_INDEX)
-					&& !edata.errorFlagSet.get(rawAttrs.SSN_INDEX)) {
-				if (SalaryTaxValidator.test(tuple.getValue(rawAttrs.SALARY),
-						tuple.getValue(rawAttrs.TAX),
-						tuple.getValue(rawAttrs.SSN), edata.errorFlagSet)) {
-					// cross test pass
-				} else {
-					// TODO
-					edata.errorFlagSet.set(rawAttrs.SALARY_INDEX);
-					edata.errorFlagSet.set(rawAttrs.TAX_INDEX);
-					System.out.println(tuple.getValue(rawAttrs.SALARY) + "\t"
-							+ tuple.getValue(rawAttrs.TAX) + "\t"
-							+ tuple.getValue(rawAttrs.SSN));
-					errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					tuple.setValue(rawAttrs.SALARY, " ");
-					tuple.setValue(rawAttrs.TAX, " ");
-				}
-			} else {
-				// error already exist
-			}
-
-			if (!edata.errorFlagSet.get(rawAttrs.BIRTH_INDEX)
-					&& !edata.errorFlagSet.get(rawAttrs.AGE_INDEX)) {
-				if (BirthAgeValidator.test(tuple.getValue(rawAttrs.BIRTH),
-						tuple.getValue(rawAttrs.AGE), edata.errorFlagSet)) {
-					// correct
-				} else {
-					// //TODO
-					// edata.errorFlagSet.set(rawAttrs.BIRTH_INDEX);
-					// edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
-					// errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					// tuple.setValue(rawAttrs.BIRTH, "  ");
-					// tuple.setValue(rawAttrs.AGE, "  ");
-				}
-			}
-			// *************
-			// **处理步骤3 build correctTable
+			// **处理步骤2 build correctTable
 			// *************
 			if (correctTable.get(tuple.getValue(rawAttrs.CUID)) == null) { // 不存在
 				inlines(lastCUID);
