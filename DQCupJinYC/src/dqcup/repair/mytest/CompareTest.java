@@ -65,12 +65,12 @@ public class CompareTest {
 		Set<RepairedCell> found, truth;
 		 
 		DatabaseRepair dr = new DatabaseRepairImpl();
-		truth = TestUtil.readTruth("../compare/Truth-easy.txt");
+		truth = TestUtil.readTruth("..\\compare\\Truth-easy.txt");
 		if (truth.size() != 0) {
 			startTime = System.currentTimeMillis();
-			found = dr.repair("../compare/DB-easy.txt");
+			found = dr.repair("..\\compare\\DB-easy.txt");
 			endTime = System.currentTimeMillis();
-			ouputFound(found, "../compare/"+(new Date()).toString()+"out-easy.txt");
+			ouputFound(found, "..\\compare\\"+(new Date()).toString().replace(":", "_")+"out-easy.txt");
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("easy-Time:" + (endTime - startTime));
@@ -82,12 +82,12 @@ public class CompareTest {
 		}
 
 		dr = new DatabaseRepairImpl();
-		truth = TestUtil.readTruth("../compare/Truth-normal.txt");
+		truth = TestUtil.readTruth("..\\compare\\Truth-normal.txt");
 		if (truth.size() != 0) {
 			startTime = System.currentTimeMillis();
-			found = dr.repair("../compare/DB-normal.txt");
+			found = dr.repair("..\\compare\\DB-normal.txt");
 			endTime = System.currentTimeMillis();
-			ouputFound(found, "../compare/"+(new Date()).toString()+"out-normal.txt");
+			ouputFound(found, "..\\compare\\"+(new Date()).toString().replace(":", "_")+"out-normal.txt");
 			double findAccuracy = TestUtil.findAccuracy(truth, found);
 			double repairAccuracy = TestUtil.repairAccuracy(truth, found);
 			System.out.println("normal-Time:" + (endTime - startTime));

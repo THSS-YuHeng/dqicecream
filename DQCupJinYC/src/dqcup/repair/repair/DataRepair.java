@@ -99,7 +99,7 @@ public class DataRepair {
 				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
 				// tuple.setValue(rawAttrs.STADD, "  ");
 				// tuple.setValue(rawAttrs.STNUM, "  ");
-				// tuple.setValue(rawAttrs.APMT, "  ");
+				tuple.setValue(rawAttrs.APMT, " ");
 			}
 
 			if (!edata.errorFlagSet.get(rawAttrs.SALARY_INDEX)
