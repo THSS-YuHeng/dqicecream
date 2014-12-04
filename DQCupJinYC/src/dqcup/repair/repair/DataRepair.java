@@ -110,6 +110,7 @@ public class DataRepair {
 				salaryTaxCross.add(t.getValue(rawAttrs.STATE), t.getValue(rawAttrs.SALARY), t.getValue(rawAttrs.TAX), t.getValue(rawAttrs.CUID));
 			}
 		}
+		salaryTaxCross.findOutlier();
 		
 		// *************
 		// **错误结果统计与修复
@@ -125,6 +126,7 @@ public class DataRepair {
 						rawAttrs.RAWS_STRINGS[i], specific.getValue(i)));
 			}
 		}
+		salaryTaxCross.repair(result);
 	}
 
 	private void inlines(String CUID) {
