@@ -19,7 +19,7 @@ public class StnumValidator implements Validator {
 	@Override
 	public boolean test(String value) {
 		// TODO Auto-generated method stub
-		if (value == null)  return false;
+		if (value == null || value.equals(""))  return true;
 		try {
 			int i = Integer.parseInt(value);
 			if (i >= 0 || i <= 9999) return true;
