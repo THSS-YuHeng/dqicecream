@@ -1,6 +1,5 @@
 package dqcup.repair.validators.cross;
 
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -9,95 +8,186 @@ import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.repair.ErrorData;
 
 public class STADDSTNUMAPMTValidator {
-	private static boolean _14pure_number(String num) {
-		try {
-			int iStadd = Integer.parseInt(num);
-			if (iStadd > 10000 && iStadd < 0)
-				return false;
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
-	}
 
-	public static boolean test(String STADD, String STNUM, String APMT,
-			BitSet errorflagSet) {
-		boolean returnflag = true;
-		if (errorflagSet == null)
-			errorflagSet = new BitSet(16);
-		// TODO Auto-generated constructor stub
-		// STADD属性为“PO Box xxxx”
-		if (STADD.startsWith("PO Box ")) {
-			// STNUM 和 APMT 都应该为空
-			if (!STNUM.isEmpty()) {
-				errorflagSet.set(rawAttrs.STNUM_INDEX);
-				returnflag &= false;
-			}
-			if (!APMT.isEmpty()) {
-				errorflagSet.set(rawAttrs.APMT_INDEX);
-				returnflag &= false;
-			}
-			// 为“PO Box xxxx”,其中"xxxx"为1-4位纯数字
-			String[] stadds = STADD.split("\\s");
-			if (stadds.length != 3) {
-				errorflagSet.set(rawAttrs.STADD_INDEX);
-				returnflag &= false; // 应该有三部分
-			}
-			if (!_14pure_number(stadds[2])) {
-				errorflagSet.set(rawAttrs.STADD_INDEX);
-				returnflag &= false; // 后面应该是四位以内的纯数字
+	public static void test(HashMap<String, LinkedList<Tuple>> correctTable, LinkedList<Tuple> linkedList, HashMap<String, ErrorData> errorTable) {
+		// TODO Auto-generated method stub
+		Tuple correct = linkedList.getLast();		
+		String correctAPMT = correct.getValue(rawAttrs.APMT);
+		String correctSTADD = null;
+		String correctSTNUM = null;
+		boolean PRE = false;
+		boolean REFIND = false;
+		
+		boolean numF = false;
+		boolean addF = false;
+		
+		if (correctAPMT == null) {
+			correctSTNUM = null;
+			correctSTADD = rawAttrs.STADDfre;
+			PRE = true;
+			if (!correct.getValue(rawAttrs.STADD).startsWith(rawAttrs.STADDfre)) {
+				REFIND = true;
+			} else {
+				correctSTADD = correct.getValue(rawAttrs.STADD);
 			}
 		} else {
-			if (STNUM.isEmpty()) {
-				errorflagSet.set(rawAttrs.STNUM_INDEX);
-				returnflag &= false;
+			correctSTNUM = correct.getValue(rawAttrs.STNUM);
+			correctSTADD = correct.getValue(rawAttrs.STADD);
+			if (correctSTNUM == null) {
+				numF = true;
 			}
-			if (APMT.isEmpty()) { // 这两个属性应该不为空
-				errorflagSet.set(rawAttrs.APMT_INDEX);
-				returnflag &= false;
-			} else {
-				// Stadd is not PO Box，而且STNUM和APMT已经不是空元素了
-				if (APMT.length() != 3 || !Character.isDigit(APMT.charAt(0))
-						|| !Character.isLowerCase(APMT.charAt(1))
-						|| !Character.isDigit(APMT.charAt(2))) {
-					errorflagSet.set(rawAttrs.APMT_INDEX);
-					return false; // APMT应该是 数字、小写字母、数字的形式
-				}
-				for (int i = 0; i < STADD.length(); i++) {
-					char c = STADD.charAt(i);
-					if (Character.isLetter(c) || c == ' ' || c == ','
-							|| c == '.') {
-						continue;
-					} else {
-						errorflagSet.set(rawAttrs.STADD_INDEX);
-						return false;
-					}
-				}
-				return true;
+			if (correctSTADD == null || correctSTADD.startsWith(rawAttrs.STADDfre)) {
+				numF = true;
 			}
 		}
-		return returnflag;
-	}
-
-	public static void test(LinkedList<Tuple> linkedList, HashMap<String, ErrorData> errorTable) {
-		// TODO Auto-generated method stub
-		Tuple correct = linkedList.getLast();
+		
 		for (int i = 0; i < linkedList.size() - 1; i++) {
 			Tuple tuple = linkedList.get(i);
-			
-			
-			
-			if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
-				ErrorData edata = new ErrorData();
-				edata.dataTuple = tuple;
-				edata.errorFlagSet.set(i);
-				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+			if (PRE) {
+				if (tuple.getValue(rawAttrs.APMT) != null) {
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						ErrorData edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.errorFlagSet.set(rawAttrs.APMT_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					} else {
+						ErrorData edata = errorTable.get(tuple
+								.getValue(rawAttrs.RUID));
+						edata.errorFlagSet.set(rawAttrs.APMT_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					}
+				}
+				if (tuple.getValue(rawAttrs.STNUM) != null) {
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						ErrorData edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					} else {
+						ErrorData edata = errorTable.get(tuple
+								.getValue(rawAttrs.RUID));
+						edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					}
+				}
+				if (REFIND) {
+					if (tuple.getValue(rawAttrs.STADD).startsWith(correctSTADD)) {
+						correctSTADD = tuple.getValue(rawAttrs.STADD);
+						REFIND = false;
+					} else {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				} else {
+					if (!tuple.getValue(rawAttrs.STADD).equals(correctSTADD)) {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				}				
 			} else {
-				ErrorData edata = errorTable.get(tuple
-						.getValue(rawAttrs.RUID));
-				edata.errorFlagSet.set(i);
-				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-			}
-		}		
+				if (!tuple.getValue(rawAttrs.APMT).equals(correctAPMT)) {
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						ErrorData edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.errorFlagSet.set(rawAttrs.APMT_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					} else {
+						ErrorData edata = errorTable.get(tuple
+								.getValue(rawAttrs.RUID));
+						edata.errorFlagSet.set(rawAttrs.APMT_INDEX);
+						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+					}
+				}
+				if (numF) {
+					if (tuple.getValue(rawAttrs.STNUM) != null) {
+						correctSTNUM = tuple.getValue(rawAttrs.STNUM);
+						numF = false;
+					} else {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				} else {
+					if (!tuple.getValue(rawAttrs.STNUM).equals(correctSTNUM)) {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STNUM_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				}
+				if (addF) {
+					if (correctSTADD != null && !correctSTADD.startsWith(rawAttrs.STADDfre)) {
+						correctSTADD = tuple.getValue(rawAttrs.STADD);
+						addF = false;
+					} else {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				} else {
+					if (!tuple.getValue(rawAttrs.STADD).equals(correctSTADD)) {
+						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+							ErrorData edata = new ErrorData();
+							edata.dataTuple = tuple;
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						} else {
+							ErrorData edata = errorTable.get(tuple
+									.getValue(rawAttrs.RUID));
+							edata.errorFlagSet.set(rawAttrs.STADD_INDEX);
+							errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+						}
+					}
+				}
+			}			
+		}
+		
+		correct.setValue(rawAttrs.STADD, correctSTADD);
+		correct.setValue(rawAttrs.STNUM, correctSTNUM);
+		correct.setValue(rawAttrs.APMT, correctAPMT);
+		
+		correctTable.get(correct.getValue(rawAttrs.CUID)).removeLast();
+		correctTable.get(correct.getValue(rawAttrs.CUID)).add(correct);
 	}
 }

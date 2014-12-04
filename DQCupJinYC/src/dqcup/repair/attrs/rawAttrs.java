@@ -36,4 +36,6 @@ public class rawAttrs {
 	public static final int TAX_INDEX = 15;
 	
 	public static final String[] RAWS_STRINGS = {RUID,CUID,SSN,FNAME,MINIT,LNAME,STNUM,STADD,APMT,CITY,STATE,ZIP,BIRTH,AGE,SALARY,TAX};
+
+	public static final String STADDfre = "PO Box ";
 }

@@ -184,6 +184,6 @@ public class DataRepair {
 		}
 		//初步处理结束，开始行内修复，以cotuple为初步修复内容参考
 		correctTable.get(CUID).add(cotuple);
-		STADDSTNUMAPMTValidator.test(correctTable.get(CUID), errorTable);
+		STADDSTNUMAPMTValidator.test(correctTable, correctTable.get(CUID), errorTable);
 	}
 }
