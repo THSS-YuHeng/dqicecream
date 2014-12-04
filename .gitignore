@@ -7,3 +7,9 @@
 *.txt
 /DQCupJinYC/src/dqcup/repair/mytest/CompareTest.java
 compare/
+
+compare/out-easy.txt
+
+compare/out-normal-re.txt
+
+compare/out-normal.txt
