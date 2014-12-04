@@ -1,11 +1,13 @@
 package dqcup.repair.validators.cross;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,8 +16,12 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.swing.text.html.CSS;
+import javax.xml.soap.Text;
 
 import dqcup.repair.RepairedCell;
+import dqcup.repair.Tuple;
+import dqcup.repair.attrs.rawAttrs;
+import dqcup.repair.repair.ErrorData;
 
 public class SalaryTaxCross {
 	class SalaryTax {
@@ -25,10 +31,14 @@ public class SalaryTaxCross {
 	}
 	// 		state			  Salary		Tax			Cuids	 
 	HashMap<String, SortedMap<Integer, Map<Integer, Set<String>>>> map;
+	
+	// key = cuid
 	Set<String> torepair;
+	HashMap<String, Integer> cuid_tax_map;
 	public SalaryTaxCross() {
 		map = new HashMap<>();
 		torepair = new HashSet<>();
+		cuid_tax_map = new HashMap<>();
 	}
 
 	public void add(String state, int salary, int tax, String cuid) {
@@ -63,6 +73,7 @@ public class SalaryTaxCross {
 	public void findOutlier() {
 		for (Entry<String, SortedMap<Integer, Map<Integer, Set<String>>>> e : map.entrySet()) {
 			// in one state
+			System.out.println(e.getKey());
 			SortedMap<Integer, Map<Integer, Set<String>>> salariesMap = e.getValue();
 			List<Entry<Integer, Map<Integer, Set<String>>>> salaries = 
 					new ArrayList<Map.Entry<Integer, Map<Integer, Set<String>>>>(
@@ -71,42 +82,88 @@ public class SalaryTaxCross {
 			for (int i = 0; i < length; i++) {
 				Entry<Integer, Map<Integer, Set<String>>> entry = salaries.get(i);
 				Map<Integer, Set<String>> taxes = entry.getValue();
-				if (entry.getValue().size() <= 1) {
-					continue;
-				} else if( i == 0) {
-					// 第一项，选择最小的合法项
-					int min_tax = Integer.MAX_VALUE;
-					for(Integer tax : taxes.keySet()) {
-						if( tax != 0 && tax < min_tax) {
-							min_tax = tax;
+				if( taxes.size() > 1 ) {
+					System.out.print("salary:" + entry.getKey()+ "\t");
+					Integer prev_tax = -1, next_tax = -1;
+					for(int j = i-1; j >= 0; j--){
+						if( salaries.get(j).getValue().size() == 1 ) {
+							prev_tax = salaries.get(j).getValue().keySet().iterator().next();
+							for( Integer tax: salaries.get(j).getValue().keySet()){
+								System.out.print("prevtax:" + tax+"\t");
+							}
+							break;
 						}
 					}
-					Set<String> cuids = taxes.get(min_tax);
-					taxes.clear();
-					taxes.put(min_tax, cuids);
-				} else {
-					// pick the least tax to be the correct answer
-					int prev = i-1;
-					int candidate = Integer.MAX_VALUE;
-					int prev_tax = Integer.MAX_VALUE;
-					Entry<Integer, Map<Integer, Set<String>>> entry_prev = salaries.get(prev);
-					if (entry_prev.getValue().size() == 1) {
-						Map<Integer, Set<String>> taxes_prev = entry_prev.getValue();
-						if(taxes_prev.size() == 1) {
-							
+					for(int j = i+1; j < length; j++){
+						if( salaries.get(j).getValue().size() == 1 ) {
+							next_tax = salaries.get(j).getValue().keySet().iterator().next();
+							for( Integer tax: salaries.get(j).getValue().keySet()){
+								System.out.print("nexttax:" + tax+"\t");
+							}
+							break;
 						}
 					}
+					Integer candidate_tax = -1;
+					for( Integer tax: taxes.keySet()){
+						System.out.print("\t" + tax.toString());
+						if(tax > prev_tax && tax < next_tax) {
+							candidate_tax = tax;
+							System.out.print("*");
+							continue;
+						}
+					}
+					for( Integer tax: taxes.keySet()){
+						if(tax > prev_tax && tax < next_tax) {
+							continue;
+						}
+						else {
+							// wrong tax
+							Set<String> cuids = taxes.get(tax);
+							for(String cuid: cuids) {
+								torepair.add(cuid);
+								cuid_tax_map.put(cuid, candidate_tax);
+							}
+						}
+					}
+					System.out.println();
+				}
+				else {
+					
+				}
+			}
+		}
+//		for(String outlier: torepair) {
+//			System.out.println(outlier + "\t" + cuid_tax_map.get(outlier));
+//		}
+		System.out.println(Integer.toString(torepair.size()));
+	}
+	
+	public void repair(String key, LinkedList<Tuple> correctTable, HashMap<String, ErrorData> errorTable, Tuple correctLine) {
+		if( torepair.contains(key)) {
+			int correctTax = cuid_tax_map.get(key);
+			correctLine.setValue(rawAttrs.TAX, Integer.toString(correctTax));
+			for(Tuple t: correctTable) {
+				if( Integer.parseInt(t.getValue(rawAttrs.TAX)) != correctTax ) {
+					String ruid = t.getValue(rawAttrs.RUID);
+					System.out.println(ruid + ","+key + "," + correctTax);
+					ErrorData ed = errorTable.get(ruid);
+					if( ed == null) {ed = new ErrorData(); }
+					ed.dataTuple = t;
+					ed.errorFlagSet.set(rawAttrs.TAX_INDEX);
+					errorTable.put(ruid, ed);
 				}
 			}
 		}
 	}
-	
-	public void repair(Set<RepairedCell> repairset) {
-		return;
-	}
 
 	public void add(String state, String salary, String tax, String cuid) {
 		// TODO Auto-generated method stub
+		if( tax.equals(" ")){
+			return;
+		}
+		else if( salary.equals(" ")){
+			return;
+		}
 		add(state, Integer.parseInt(salary), Integer.parseInt(tax), cuid);
 	}
 }
