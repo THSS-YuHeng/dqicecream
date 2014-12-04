@@ -9,6 +9,7 @@ import java.util.Set;
 import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
+import dqcup.repair.validators.APMTValidator;
 import dqcup.repair.validators.AgeValidator;
 import dqcup.repair.validators.BirthValidator;
 import dqcup.repair.validators.CityValidator;
@@ -16,8 +17,10 @@ import dqcup.repair.validators.FnameValidator;
 import dqcup.repair.validators.LnameValidator;
 import dqcup.repair.validators.MinitValidator;
 import dqcup.repair.validators.SSNValidator;
+import dqcup.repair.validators.STADDValidator;
 import dqcup.repair.validators.SalaryValidator;
 import dqcup.repair.validators.StateValidator;
+import dqcup.repair.validators.StnumValidator;
 import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
@@ -55,6 +58,9 @@ public class DataRepair {
 		validators.add(new StateValidator());
 		validators.add(new TaxValidator());
 		validators.add(new ZipValidator());
+		validators.add(new APMTValidator());
+		validators.add(new STADDValidator());
+		validators.add(new StnumValidator());
 	}
 
 	public void excute() {
