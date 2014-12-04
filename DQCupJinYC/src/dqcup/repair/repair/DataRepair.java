@@ -24,9 +24,6 @@ import dqcup.repair.validators.StnumValidator;
 import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
-import dqcup.repair.validators.cross.BirthAgeValidator;
-import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
-import dqcup.repair.validators.cross.SalaryTaxValidator;
 
 public class DataRepair {
 
@@ -109,7 +106,7 @@ public class DataRepair {
 					.nextSetBit(i + 1)) {
 				// operate on index i here
 				Tuple specific = correctTable.get(
-						edata.dataTuple.getValue(rawAttrs.CUID)).getFirst();
+						edata.dataTuple.getValue(rawAttrs.CUID)).getLast();
 				result.add(new RepairedCell(Integer.parseInt(key),
 						rawAttrs.RAWS_STRINGS[i], specific.getValue(i)));
 			}
@@ -121,6 +118,7 @@ public class DataRepair {
 		if (CUID == null || CUID.length() < 1)
 			return;
 		LinkedList<Tuple> list = correctTable.get(CUID);
+		Tuple cotuple = correctTable.get(CUID).getFirst();
 		for (int i = 2; i < 16; i++) {
 			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
 			for (Tuple tuple : list) {
@@ -160,10 +158,9 @@ public class DataRepair {
 						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
 					}
 				}
-			}
-			Tuple cotuple = correctTable.get(CUID).getFirst();
+			}			
 			cotuple.setValue(rawAttrs.RAWS_STRINGS[i], correct);
-			correctTable.get(CUID).set(0, cotuple);
 		}
+		correctTable.get(CUID).add(cotuple);
 	}
 }
