@@ -111,7 +111,11 @@ public class DataRepair {
 			}
 		}
 		salaryTaxCross.findOutlier();
-		
+		for (String key: correctTable.keySet()) {
+			LinkedList<Tuple> correctLine = correctTable.get(key);
+			Tuple candidate = correctLine.getLast();
+			salaryTaxCross.repair(key, correctLine, errorTable, candidate);
+		}
 		// *************
 		// **错误结果统计与修复
 		// *************
@@ -126,7 +130,7 @@ public class DataRepair {
 						rawAttrs.RAWS_STRINGS[i], specific.getValue(i)));
 			}
 		}
-		salaryTaxCross.repair(result);
+		
 	}
 
 	private void inlines(String CUID) {
