@@ -24,6 +24,7 @@ import dqcup.repair.validators.StnumValidator;
 import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
+import dqcup.repair.validators.cross.BirthAgeValidator;
 import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
 import dqcup.repair.validators.cross.SalaryTaxCross;
 
@@ -190,5 +191,6 @@ public class DataRepair {
 		//初步处理结束，开始行内修复，以cotuple为初步修复内容参考
 		correctTable.get(CUID).add(cotuple);
 		STADDSTNUMAPMTValidator.test(correctTable, correctTable.get(CUID), errorTable);
+		BirthAgeValidator.test(correctTable, correctTable.get(CUID), errorTable);
 	}
 }
