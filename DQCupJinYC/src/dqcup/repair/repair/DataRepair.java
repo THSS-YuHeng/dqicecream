@@ -24,6 +24,7 @@ import dqcup.repair.validators.StnumValidator;
 import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
+import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
 
 public class DataRepair {
 
@@ -120,6 +121,11 @@ public class DataRepair {
 		LinkedList<Tuple> list = correctTable.get(CUID);
 		Tuple cotuple = correctTable.get(CUID).getFirst();
 		for (int i = 2; i < 16; i++) {
+			
+			if (i == rawAttrs.AGE_INDEX || i == rawAttrs.TAX_INDEX || i == rawAttrs.STADD_INDEX || i == rawAttrs.STNUM_INDEX) {
+				continue;
+			}
+			
 			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
@@ -161,6 +167,8 @@ public class DataRepair {
 			}			
 			cotuple.setValue(rawAttrs.RAWS_STRINGS[i], correct);
 		}
+		//初步处理结束，开始行内修复，以cotuple为初步修复内容参考
 		correctTable.get(CUID).add(cotuple);
+		STADDSTNUMAPMTValidator.test(correctTable.get(CUID), errorTable);
 	}
 }

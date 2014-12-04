@@ -1,8 +1,12 @@
 package dqcup.repair.validators.cross;
 
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.LinkedList;
 
+import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
+import dqcup.repair.repair.ErrorData;
 
 public class STADDSTNUMAPMTValidator {
 	private static boolean _14pure_number(String num) {
@@ -73,5 +77,27 @@ public class STADDSTNUMAPMTValidator {
 			}
 		}
 		return returnflag;
+	}
+
+	public static void test(LinkedList<Tuple> linkedList, HashMap<String, ErrorData> errorTable) {
+		// TODO Auto-generated method stub
+		Tuple correct = linkedList.getLast();
+		for (int i = 0; i < linkedList.size() - 1; i++) {
+			Tuple tuple = linkedList.get(i);
+			
+			
+			
+			if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+				ErrorData edata = new ErrorData();
+				edata.dataTuple = tuple;
+				edata.errorFlagSet.set(i);
+				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+			} else {
+				ErrorData edata = errorTable.get(tuple
+						.getValue(rawAttrs.RUID));
+				edata.errorFlagSet.set(i);
+				errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+			}
+		}		
 	}
 }
