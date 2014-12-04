@@ -25,6 +25,7 @@ import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
 import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
+import dqcup.repair.validators.cross.SalaryTaxCross;
 
 public class DataRepair {
 
@@ -36,7 +37,8 @@ public class DataRepair {
 	public HashMap<String, ErrorData> errorTable; // 单行数据错误
 
 	public ArrayList<Validator> validators;
-
+	public SalaryTaxCross salaryTaxCross;
+	
 	public DataRepair(LinkedList<Tuple> t, HashSet<RepairedCell> r) {
 		// TODO Auto-generated constructor stub
 		this.tuples = t;
@@ -45,6 +47,8 @@ public class DataRepair {
 		errorTable = new HashMap<String, ErrorData>();
 		validators = new ArrayList<Validator>();
 
+		salaryTaxCross = new SalaryTaxCross();
+		
 		validators.add(new AgeValidator());
 		validators.add(new BirthValidator());
 		validators.add(new CityValidator());
@@ -98,6 +102,15 @@ public class DataRepair {
 				list.add(tuple);
 			}
 		}
+		
+		for (String key: correctTable.keySet()) {
+			LinkedList<Tuple> correctLine = correctTable.get(key);
+			for(int i = 0; i < correctLine.size()-1; i++) {
+				Tuple t = correctLine.get(i);
+				salaryTaxCross.add(t.getValue(rawAttrs.STATE), t.getValue(rawAttrs.SALARY), t.getValue(rawAttrs.TAX), t.getValue(rawAttrs.CUID));
+			}
+		}
+		
 		// *************
 		// **错误结果统计与修复
 		// *************
