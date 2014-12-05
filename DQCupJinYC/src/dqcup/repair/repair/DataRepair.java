@@ -106,9 +106,12 @@ public class DataRepair {
 		
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
+			Tuple candidate = correctLine.getLast();
 			for(int i = 0; i < correctLine.size()-1; i++) {
 				Tuple t = correctLine.get(i);
-				salaryTaxCross.add(t.getValue(rawAttrs.STATE), t.getValue(rawAttrs.SALARY), t.getValue(rawAttrs.TAX), t.getValue(rawAttrs.CUID));
+				// 使用candidate的值，除了cuid
+				salaryTaxCross.add(candidate.getValue(rawAttrs.STATE), candidate.getValue(rawAttrs.SALARY), 
+						candidate.getValue(rawAttrs.TAX), t.getValue(rawAttrs.CUID));
 			}
 		}
 		salaryTaxCross.findOutlier();

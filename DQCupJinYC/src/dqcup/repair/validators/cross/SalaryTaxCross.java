@@ -31,7 +31,7 @@ public class SalaryTaxCross {
 	}
 	// 		state			  Salary		Tax			Cuids	 
 	HashMap<String, SortedMap<Integer, Map<Integer, Set<String>>>> map;
-	
+
 	// key = cuid
 	Set<String> torepair;
 	HashMap<String, Integer> cuid_tax_map;
@@ -56,6 +56,7 @@ public class SalaryTaxCross {
 			// 过滤掉不应该征税的东西
 			tax = 0;
 			torepair.add(cuid);
+			cuid_tax_map.put(cuid, 0);
 		}
 		Set<String> cuids = taxes.get(tax);
 		if (cuids == null) {
@@ -65,11 +66,11 @@ public class SalaryTaxCross {
 		cuids.add(cuid);
 	}
 
-	
+
 	/* 用贪心算法搞
 	 * 如果是第一项，且salary大于1500
 	 * */
-	
+
 	public void findOutlier() {
 		for (Entry<String, SortedMap<Integer, Map<Integer, Set<String>>>> e : map.entrySet()) {
 			// in one state
@@ -77,31 +78,22 @@ public class SalaryTaxCross {
 			SortedMap<Integer, Map<Integer, Set<String>>> salariesMap = e.getValue();
 			List<Entry<Integer, Map<Integer, Set<String>>>> salaries = 
 					new ArrayList<Map.Entry<Integer, Map<Integer, Set<String>>>>(
-					salariesMap.entrySet());
+							salariesMap.entrySet());
 			int length = salaries.size();
 			for (int i = 0; i < length; i++) {
 				Entry<Integer, Map<Integer, Set<String>>> entry = salaries.get(i);
 				Map<Integer, Set<String>> taxes = entry.getValue();
+				//
 				if( taxes.size() > 1 ) {
 					System.out.print("salary:" + entry.getKey()+ "\t");
 					Integer prev_tax = -1, next_tax = -1;
 					for(int j = i-1; j >= 0; j--){
-						if( salaries.get(j).getValue().size() == 1 ) {
-							prev_tax = salaries.get(j).getValue().keySet().iterator().next();
-							for( Integer tax: salaries.get(j).getValue().keySet()){
-								System.out.print("prevtax:" + tax+"\t");
-							}
-							break;
-						}
+						prev_tax = salaries.get(j).getValue().keySet().iterator().next();
+						break;
 					}
 					for(int j = i+1; j < length; j++){
-						if( salaries.get(j).getValue().size() == 1 ) {
-							next_tax = salaries.get(j).getValue().keySet().iterator().next();
-							for( Integer tax: salaries.get(j).getValue().keySet()){
-								System.out.print("nexttax:" + tax+"\t");
-							}
-							break;
-						}
+						next_tax = salaries.get(j).getValue().keySet().iterator().next();
+						break;
 					}
 					Integer candidate_tax = -1;
 					for( Integer tax: taxes.keySet()){
@@ -112,8 +104,15 @@ public class SalaryTaxCross {
 							continue;
 						}
 					}
+					Map<Integer, Set<String>> new_taxes = new HashMap<Integer, Set<String>>();
+					HashSet<String> new_cuids = new HashSet<String>();
+					new_taxes.put(candidate_tax, new_cuids);
 					for( Integer tax: taxes.keySet()){
-						if(tax > prev_tax && tax < next_tax) {
+						if(tax == candidate_tax) {
+							Set<String> cuids = taxes.get(tax);
+							for(String cuid: cuids) {
+								System.out.print("\t" + cuid);
+							}
 							continue;
 						}
 						else {
@@ -121,29 +120,34 @@ public class SalaryTaxCross {
 							Set<String> cuids = taxes.get(tax);
 							for(String cuid: cuids) {
 								torepair.add(cuid);
+								new_cuids.add(cuid);
 								cuid_tax_map.put(cuid, candidate_tax);
+								System.out.print("\t" + cuid);
 							}
 						}
 					}
+					new_taxes.put(candidate_tax, new_cuids);
 					System.out.println();
 				}
 				else {
-					
 				}
 			}
 		}
-//		for(String outlier: torepair) {
-//			System.out.println(outlier + "\t" + cuid_tax_map.get(outlier));
-//		}
+
 		System.out.println(Integer.toString(torepair.size()));
 	}
-	
+
 	public void repair(String key, LinkedList<Tuple> correctTable, HashMap<String, ErrorData> errorTable, Tuple correctLine) {
 		if( torepair.contains(key)) {
 			int correctTax = cuid_tax_map.get(key);
 			correctLine.setValue(rawAttrs.TAX, Integer.toString(correctTax));
 			for(Tuple t: correctTable) {
-				if( Integer.parseInt(t.getValue(rawAttrs.TAX)) != correctTax ) {
+				int tax = -1; 
+				try{
+					tax = Integer.parseInt(t.getValue(rawAttrs.TAX));
+				}catch(NumberFormatException e){
+				}
+				if( tax != correctTax ) {
 					String ruid = t.getValue(rawAttrs.RUID);
 					System.out.println(ruid + ","+key + "," + correctTax);
 					ErrorData ed = errorTable.get(ruid);
