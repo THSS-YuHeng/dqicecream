@@ -25,6 +25,7 @@ import dqcup.repair.validators.TaxValidator;
 import dqcup.repair.validators.Validator;
 import dqcup.repair.validators.ZipValidator;
 import dqcup.repair.validators.cross.BirthAgeValidator;
+import dqcup.repair.validators.cross.SSNCross;
 import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
 import dqcup.repair.validators.cross.SalaryTaxCross;
 
@@ -39,6 +40,7 @@ public class DataRepair {
 
 	public ArrayList<Validator> validators;
 	public SalaryTaxCross salaryTaxCross;
+	public SSNCross ssnCross;
 	
 	public DataRepair(LinkedList<Tuple> t, HashSet<RepairedCell> r) {
 		// TODO Auto-generated constructor stub
@@ -49,6 +51,7 @@ public class DataRepair {
 		validators = new ArrayList<Validator>();
 
 		salaryTaxCross = new SalaryTaxCross();
+		ssnCross = new SSNCross();
 		
 		validators.add(new AgeValidator());
 		validators.add(new BirthValidator());
@@ -107,11 +110,24 @@ public class DataRepair {
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
+			HashSet<String> ssns = new HashSet<>();
 			for(int i = 0; i < correctLine.size()-1; i++) {
 				Tuple t = correctLine.get(i);
 				// 使用candidate的值，除了cuid
+				String curssnString = t.getValue(rawAttrs.SSN); 
+				if (curssnString.equals(" ")) {
+					// 错误的ssn,不管他
+					continue;
+				}
+				ssns.add(curssnString);
 				salaryTaxCross.add(candidate.getValue(rawAttrs.STATE), candidate.getValue(rawAttrs.SALARY), 
 						candidate.getValue(rawAttrs.TAX), t.getValue(rawAttrs.CUID));
+			}
+			String cuid = candidate.getValue(rawAttrs.CUID);
+			if( ssns.size() > 1) {
+				ssnCross.add_problem(ssns, cuid);
+			} else {
+				ssnCross.add_single(candidate.getValue(rawAttrs.SSN), cuid);
 			}
 		}
 		salaryTaxCross.findOutlier();
@@ -120,6 +136,7 @@ public class DataRepair {
 			Tuple candidate = correctLine.getLast();
 			salaryTaxCross.repair(key, correctLine, errorTable, candidate);
 		}
+		ssnCross.repair(correctTable, errorTable);
 		// *************
 		// **错误结果统计与修复
 		// *************
@@ -172,7 +189,8 @@ public class DataRepair {
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
 				if (!v.equals(correct)) {
-					if (i == rawAttrs.AGE_INDEX || i == rawAttrs.TAX_INDEX || i == rawAttrs.STADD_INDEX || i == rawAttrs.STNUM_INDEX) {
+					if (i == rawAttrs.AGE_INDEX || i == rawAttrs.TAX_INDEX || i == rawAttrs.STADD_INDEX 
+							|| i == rawAttrs.STNUM_INDEX || i==rawAttrs.SSN_INDEX) {
 						//do nothing
 					} else {
 						if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
