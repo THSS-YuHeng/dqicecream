@@ -33,7 +33,7 @@ public class Test {
 			totalTime += (endTime - startTime);
 			avgFindAccuracy += findAccuracy;
 			avgRepairAccuracy += repairAccuracy;
-			ResulttoFile.writeresult(found, 0);
+			//ResulttoFile.writeresult(found, 0);
 		}
 
 		dr = new DatabaseRepairImpl();
@@ -51,7 +51,7 @@ public class Test {
 			totalTime += (endTime - startTime);
 			avgFindAccuracy += findAccuracy;
 			avgRepairAccuracy += repairAccuracy;
-			ResulttoFile.writeresult(found, 1);
+			//ResulttoFile.writeresult(found, 1);
 		}
 		
 		dr = new DatabaseRepairImpl();
