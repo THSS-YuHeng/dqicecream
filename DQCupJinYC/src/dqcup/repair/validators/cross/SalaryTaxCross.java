@@ -32,9 +32,11 @@ public class SalaryTaxCross {
 	// 		state			  Salary		Tax			Cuids	 
 	HashMap<String, SortedMap<Integer, Map<Integer, Set<String>>>> map;
 
-	// key = cuid
+	// key = cuid, 保存所有有问题的cuid
 	Set<String> torepair;
+	// key = cuid，value = cuid对应的正确的tax值，用于修复
 	HashMap<String, Integer> cuid_tax_map;
+	
 	public SalaryTaxCross() {
 		map = new HashMap<>();
 		torepair = new HashSet<>();
@@ -74,10 +76,11 @@ public class SalaryTaxCross {
 	public void findOutlier() {
 		for (Entry<String, SortedMap<Integer, Map<Integer, Set<String>>>> e : map.entrySet()) {
 			// in one state
-			String state = e.getKey(); 
+//			String state = e.getKey(); 
 //			if(e.getKey().equals("AK")) {
 //				System.out.println("examine");
 //			}
+			// 遍历每个州，每个州对应一个salaries
 			SortedMap<Integer, Map<Integer, Set<String>>> salariesMap = e.getValue();
 			List<Entry<Integer, Map<Integer, Set<String>>>> salaries = 
 					new ArrayList<Map.Entry<Integer, Map<Integer, Set<String>>>>(
@@ -136,7 +139,8 @@ public class SalaryTaxCross {
 				}
 			}
 			// 目前应该所有的salary对应的项都改成1个可能正确的tax了
-			// 执行一个最长递增子序列操作，找到outlier，即只有一个tax的漏网之鱼
+			// 执行一个最长递增子序列操作，找到outlier，即只有一个tax但是不属于递增序列的漏网之鱼
+			// 暂时只能假定最长的递增序列是正确的
 			int n = salaries.size();
 			int[] B = new int[n+1];
 			int[] A = new int[n];
@@ -144,6 +148,7 @@ public class SalaryTaxCross {
 			int cur_lis_len = 1;
 			B[0] = -INF;
 			int tax_index = 0;
+			// 初始化A和B数组
 			for (int i = 0; i < length; i++) {
 				Entry<Integer, Map<Integer, Set<String>>> entry = salaries.get(i);
 				Integer sal = entry.getKey();
@@ -159,6 +164,9 @@ public class SalaryTaxCross {
 			}
 			//System.out.println(n);
 			B[0] = 1;
+			// 暴力求递增序列
+			// B包含以对应元素结尾的最长序列长度
+			// 每次迭代选择比自己小的最大长度，+1保存到B
 			for(int i = 1; i < n; i++ ){
 				int max_len = 0;
 				for(int j = 0; j < i; j++) {
@@ -203,7 +211,7 @@ public class SalaryTaxCross {
 					Entry<Integer, Map<Integer, Set<String>>> nextEntry = salaries.get(j + 1);
 					int nextSalary = nextEntry.getKey();
 					int nextTax = nextEntry.getValue().keySet().iterator().next();
-
+					// 根据前后的salary和tax进行插值
 					if ((currentTax < prevTax || currentTax > nextTax) && (prevTax < nextTax)) {
 						//error
 						int rate = (int) Math.round((double) (nextTax - prevTax) * 100
@@ -275,6 +283,7 @@ public class SalaryTaxCross {
 
 	public void add(String state, String salary, String tax, String cuid) {
 		// TODO Auto-generated method stub
+		// 接口，用于过滤有问题的tax和salary
 		if( tax.equals(" ")){
 			return;
 		}

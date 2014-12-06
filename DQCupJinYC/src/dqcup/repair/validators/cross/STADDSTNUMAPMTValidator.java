@@ -21,10 +21,6 @@ public class STADDSTNUMAPMTValidator {
 		boolean numF = false;
 		boolean addF = false;
 		
-		if (correct.getValue(rawAttrs.CUID).equals("31438")) {
-			System.out.println("here");
-		}
-		
 		if (correctAPMT == null || correctAPMT.equals("")) {
 			correctSTNUM = null;
 			correctSTADD = rawAttrs.STADDfre;
