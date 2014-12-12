@@ -178,14 +178,19 @@ public class DataRepair {
 			Set<String> keys = tmp.keySet();
 			int max = 0;
 			String correct = "";
+			boolean change = false;
 			for (String key : keys) {
 				if (!key.equals(" ") && tmp.get(key) >= max) {
 					max = tmp.get(key);
 					correct = key;
+					change = true;
 				}
 			}
 			if (correct.equals("  "))
 				correct = "";
+			if (!change) {
+				correct = " ";
+			}
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
 				if (!v.equals(correct)) {
