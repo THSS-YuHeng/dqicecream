@@ -156,7 +156,7 @@ public class DataRepair {
 				int max = 0;
 				String correct = "";
 				for (String apmt : keys) {
-					if( apmt.length() == 3 && tmp.get(apmt) >= max) {
+					if(APMTrepair.repair(apmt) != " " && apmt.length() == 3 && tmp.get(apmt) >= max) {
 						max = tmp.get(apmt);
 						correct = apmt;
 					}
