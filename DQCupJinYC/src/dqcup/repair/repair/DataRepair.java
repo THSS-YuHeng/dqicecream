@@ -143,7 +143,7 @@ public class DataRepair {
 					String ruid = correctLine.get(j).getValue(rawAttrs.RUID);
 					ErrorData edata = errorTable.get(ruid);
 					String v = edata.originalTuple.getValue(rawAttrs.APMT);
-					System.out.println(">"+v+"<");
+					//System.out.println(">"+v+"<");
 					if (v == null)
 					{}
 					if (tmp.get(v) == null) {
