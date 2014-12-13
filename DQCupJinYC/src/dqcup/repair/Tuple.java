@@ -2,10 +2,14 @@ package dqcup.repair;
 
 import java.util.HashMap;
 
-public class Tuple {
+public class Tuple{
 	private ColumnNames columnNames;
 	private HashMap<String, String> cells;
 	public String tus;
+	
+	public Tuple clone() {
+		return new Tuple(columnNames, tus);
+	}
 	
 	public Tuple(ColumnNames columnNames, String tupleLine){
 		tus = tupleLine;

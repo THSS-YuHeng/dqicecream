@@ -8,6 +8,7 @@ import java.util.Set;
 
 import dqcup.repair.RepairedCell;
 import dqcup.repair.Tuple;
+import dqcup.repair.attrrepair.APMTrepair;
 import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.validators.APMTValidator;
 import dqcup.repair.validators.AgeValidator;
@@ -35,13 +36,13 @@ public class DataRepair {
 	private HashSet<RepairedCell> result; // 修复结果
 
 	public HashMap<String, LinkedList<Tuple>> correctTable; // 单行数据处理结果 ***使用“
-															// ”作为错误的数据填充***
-	public HashMap<String, ErrorData> errorTable; // 单行数据错误
+	// ”作为错误的数据填充*** cuid -> tuples
+	public HashMap<String, ErrorData> errorTable; // 单行数据错误 ruid -> data
 
 	public ArrayList<Validator> validators;
 	public SalaryTaxCross salaryTaxCross;
 	public SSNCross ssnCross;
-	
+
 	public DataRepair(LinkedList<Tuple> t, HashSet<RepairedCell> r) {
 		// TODO Auto-generated constructor stub
 		this.tuples = t;
@@ -52,7 +53,7 @@ public class DataRepair {
 
 		salaryTaxCross = new SalaryTaxCross();
 		ssnCross = new SSNCross();
-		
+
 		validators.add(new AgeValidator());
 		validators.add(new BirthValidator());
 		validators.add(new CityValidator());
@@ -80,7 +81,7 @@ public class DataRepair {
 			// *************
 			ErrorData edata = new ErrorData();
 			edata.dataTuple = tuple;
-			edata.originalTuple = tuple;
+			edata.originalTuple = tuple.clone();
 			for (Validator validator : validators) {
 				if (validator.test(tuple.getValue(validator.getIndex()))) {
 					// correct
@@ -106,7 +107,7 @@ public class DataRepair {
 				list.add(tuple);
 			}
 		}
-		
+
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
@@ -135,6 +136,37 @@ public class DataRepair {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
 			salaryTaxCross.repair(key, correctLine, errorTable, candidate);
+			if(candidate.getValue(rawAttrs.APMT).equals(" ")) {
+				// do apmt repair
+				HashMap<String, Integer> tmp = new HashMap<>();
+				for( int j = 0; j < correctLine.size()-1; j++) {
+					String ruid = correctLine.get(j).getValue(rawAttrs.RUID);
+					ErrorData edata = errorTable.get(ruid);
+					String v = edata.originalTuple.getValue(rawAttrs.APMT);
+					System.out.println(">"+v+"<");
+					if (v == null)
+					{}
+					if (tmp.get(v) == null) {
+						tmp.put(v, 1);
+					} else {
+						tmp.put(v, tmp.get(v) + 1);
+					}	
+				}
+				Set<String> keys = tmp.keySet();
+				int max = 0;
+				String correct = "";
+				for (String apmt : keys) {
+					if( apmt.length() == 3 && tmp.get(apmt) >= max) {
+						max = tmp.get(apmt);
+						correct = apmt;
+					}
+				}
+				if(correct.length() == 3) {
+					correct = APMTrepair.repair(correct);
+				}
+				//System.out.println("APMT :>" + correct + "<");
+				candidate.setValue(rawAttrs.APMT, correct);
+			}
 		}
 		ssnCross.repair(correctTable, errorTable);
 		// *************
@@ -145,13 +177,14 @@ public class DataRepair {
 			for (int i = edata.errorFlagSet.nextSetBit(0); i >= 0; i = edata.errorFlagSet
 					.nextSetBit(i + 1)) {
 				// operate on index i here
-				Tuple specific = correctTable.get(
-						edata.dataTuple.getValue(rawAttrs.CUID)).getLast();
+				LinkedList<Tuple> l = correctTable.get(edata.dataTuple.getValue(rawAttrs.CUID));
+				Tuple specific = l.getLast();
+
 				result.add(new RepairedCell(Integer.parseInt(key),
 						rawAttrs.RAWS_STRINGS[i], specific.getValue(i)));
 			}
 		}
-		
+
 	}
 
 	private void inlines(String CUID) {
@@ -160,9 +193,9 @@ public class DataRepair {
 			return;
 		LinkedList<Tuple> list = correctTable.get(CUID);
 		Tuple cotuple = new Tuple(list.getFirst().getColumnNames(), list.getFirst().tus);		
-		
+
 		for (int i = 2; i < 16; i++) {
-			
+
 			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
 			for (Tuple tuple : list) {
 				String v = tuple.getValue(i);
