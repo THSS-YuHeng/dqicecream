@@ -135,7 +135,7 @@ public class DataRepair {
 			}
 		}
 		salaryTaxCross.findOutlier();
-		zipCitystateCrocc.findOutlier();
+		zipCitystateCrocc.findOutlier(correctTable, errorTable);
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
