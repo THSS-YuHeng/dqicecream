@@ -29,6 +29,7 @@ import dqcup.repair.validators.cross.BirthAgeValidator;
 import dqcup.repair.validators.cross.SSNCross;
 import dqcup.repair.validators.cross.STADDSTNUMAPMTValidator;
 import dqcup.repair.validators.cross.SalaryTaxCross;
+import dqcup.repair.validators.cross.ZipCityStateCross;
 
 public class DataRepair {
 
@@ -41,6 +42,7 @@ public class DataRepair {
 
 	public ArrayList<Validator> validators;
 	public SalaryTaxCross salaryTaxCross;
+	public ZipCityStateCross zipCitystateCrocc;
 	public SSNCross ssnCross;
 
 	public DataRepair(LinkedList<Tuple> t, HashSet<RepairedCell> r) {
@@ -52,6 +54,7 @@ public class DataRepair {
 		validators = new ArrayList<Validator>();
 
 		salaryTaxCross = new SalaryTaxCross();
+		zipCitystateCrocc = new ZipCityStateCross();
 		ssnCross = new SSNCross();
 
 		validators.add(new AgeValidator());
@@ -132,6 +135,7 @@ public class DataRepair {
 			}
 		}
 		salaryTaxCross.findOutlier();
+		zipCitystateCrocc.findOutlier();
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
