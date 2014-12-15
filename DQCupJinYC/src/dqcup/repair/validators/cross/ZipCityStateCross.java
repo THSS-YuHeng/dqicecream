@@ -3,23 +3,27 @@ package dqcup.repair.validators.cross;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import dqcup.repair.Tuple;
 import dqcup.repair.attrs.rawAttrs;
 import dqcup.repair.repair.ErrorData;
 
 public class ZipCityStateCross {
-	
+
 	// 		zip				state	counter
 	HashMap<String, HashMap<String, Integer>> zipStateCounterMap;
 	// 		zip				state			city	counter
 	HashMap<String, HashMap<String, HashMap<String, Integer>>> zipStateCityCounterHashMap;
 	//		state			city			zip		counter
 	HashMap<String, HashMap<String, HashMap<String, Integer>>> stateCityZipCounterHashMap;
-	
 	//		zip				state	count
 	HashMap<String, HashMap<String, Integer>> zipShortStateMap;
-	
+
+	private String judge(Set<String> states, String zip) {
+		return " ";
+	}
+
 	public ZipCityStateCross() {
 		// TODO Auto-generated method stub
 		zipStateCityCounterHashMap = new HashMap<String, HashMap<String, HashMap<String, Integer>>>();
@@ -32,14 +36,13 @@ public class ZipCityStateCross {
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
-			HashSet<String> ssns = new HashSet<>();
-			String cuid = candidate.getValue(rawAttrs.CUID);
+			//String cuid = candidate.getValue(rawAttrs.CUID);
 			for(int i = 0; i < correctLine.size()-1; i++) {
 				String zip = correctLine.get(i).getValue(rawAttrs.ZIP);
 				String city = correctLine.get(i).getValue(rawAttrs.CITY);
 				String state = correctLine.get(i).getValue(rawAttrs.STATE);
-				if( !zip.equals(" ")) {
-					String zipShort = zip.substring(0, 3);
+				if( !zip.equals(" ") && !state.equals(" ")) { // 首先zip不能是错误的
+					String zipShort = zip.substring(0, 3); // zip的前三位，用于缩小搜索范围
 					if( !zipShortStateMap.containsKey(zipShort)) {
 						zipShortStateMap.put(zipShort, new HashMap<String, Integer>());
 					}
@@ -77,6 +80,27 @@ public class ZipCityStateCross {
 				}
 			}
 		}
+		for(String kzipshort: zipShortStateMap.keySet()) {
+			System.out.print(kzipshort + ":");
+			for(String kstate: zipShortStateMap.get(kzipshort).keySet()) {
+				System.out.print("{" + kstate + ":" + zipShortStateMap.get(kzipshort).get(kstate).toString() + "}");
+			}
+			System.out.print("\n");
+		}
+		for(String kzip: zipStateCityCounterHashMap.keySet()) {
+			HashMap<String, HashMap<String, Integer>> stateCityCounter = zipStateCityCounterHashMap.get(kzip);
+			if( stateCityCounter.keySet().size() > 1 ) {
+				System.out.print(kzip + ":");
+				for(String kstate: zipStateCityCounterHashMap.get(kzip).keySet() ) {
+					System.out.print(" { " + kstate + " ");
+					for(String kcity: zipStateCityCounterHashMap.get(kzip).get(kstate).keySet()) {
+						System.out.print(kcity + " " + zipStateCityCounterHashMap.get(kzip).get(kstate).get(kcity) + " ");
+					}
+					System.out.print("}");
+				}
+				System.out.println();
+			}
+		}
 		for(String kzip: zipStateCityCounterHashMap.keySet()) {
 			HashMap<String, HashMap<String, Integer>> stateCityCounter = zipStateCityCounterHashMap.get(kzip);
 			HashMap<String, Integer> stateCounter = zipStateCounterMap.get(kzip);
@@ -84,7 +108,7 @@ public class ZipCityStateCross {
 			int citymax = 0; String candidateCity = " ";
 			if( stateCounter.keySet().size() > 1) {
 				// 1 zip 应该对应 only 1 state, 1 city
-				// > 1 说明是outlier
+				// > 1 说明是有outlier
 				System.out.print(kzip + ":");
 				for( String kstate: zipShortStateMap.get(kzip.subSequence(0, 3)).keySet()) {
 					System.out.print(kstate + " " + zipShortStateMap.get(kzip.subSequence(0, 3)).get(kstate).toString() + ",");
@@ -104,11 +128,16 @@ public class ZipCityStateCross {
 			}
 			if( stateCityCounter.get(candidateState).keySet().size() > 1 ) {
 				for( String kcity: stateCityCounter.get(candidateState).keySet() ) {
+					if( kcity.equals(" ")) {
+						System.out.println("wrong city" + kcity);
+					}
 					if( stateCityCounter.get(candidateState).get(kcity) > citymax) {
-						max = stateCityCounter.get(candidateState).get(kcity);
+						citymax = stateCityCounter.get(candidateState).get(kcity);
 						candidateCity = kcity;
+						
 					}
 				}
+				System.out.println("candidate:" + candidateCity);
 			} else {
 				candidateCity = stateCityCounter.get(candidateState).keySet().iterator().next();
 			}
@@ -123,43 +152,15 @@ public class ZipCityStateCross {
 			HashSet<String> ssns = new HashSet<>();
 			String cuid = candidate.getValue(rawAttrs.CUID);
 			String zip = candidate.getValue(rawAttrs.ZIP);
+			HashMap<String, HashMap<String, Integer>> temp = zipStateCityCounterHashMap.get(zip);
+			if(temp == null) {
+				continue;
+			}
 			String candidateState = zipStateCityCounterHashMap.get(zip).keySet().iterator().next();
 			String candidateCity = zipStateCityCounterHashMap.get(zip).get(candidateState).keySet().iterator().next();
-			boolean stateError = false, cityError = false;
-			stateError = !candidate.getValue(rawAttrs.STATE).equals(candidateState); candidate.setValue(rawAttrs.STATE, candidateState);
-			cityError = !candidate.getValue(rawAttrs.CITY).equals(candidateCity); candidate.setValue(rawAttrs.CITY, candidateCity);
-			for( int i = 0; i < correctLine.size() - 1; i ++) {
-				Tuple t = correctLine.get(i);
-				String ruid = t.getValue(rawAttrs.RUID);
-				String tstate = t.getValue(rawAttrs.STATE); String tcity = t.getValue(rawAttrs.CITY);
-				if( !tstate.equals(candidateState)) {
-					ErrorData ed = errorTable.get(ruid);
-					if( ed == null) {
-						ed = new ErrorData();
-						ed.dataTuple = t;
-					}
-					ed.errorFlagSet.set(rawAttrs.STATE_INDEX);
-					errorTable.put(ruid, ed);
-				} else {
-					ErrorData ed = errorTable.get(ruid);
-					if( ed != null && ed.errorFlagSet.get(rawAttrs.STATE_INDEX)) {
-						ed.errorFlagSet.clear(rawAttrs.STATE_INDEX); // 总之和candidate相等，那么把原来的错误位清除。
-					}
-				}
-				if( !tcity.equals(candidateCity)) {
-					ErrorData ed = errorTable.get(ruid);
-					if( ed == null) {
-						ed = new ErrorData();
-						ed.dataTuple = t;
-					}
-					ed.errorFlagSet.set(rawAttrs.CITY_INDEX);
-					errorTable.put(ruid, ed);
-				} else {
-					ErrorData ed = errorTable.get(ruid);
-					if( ed != null && ed.errorFlagSet.get(rawAttrs.CITY_INDEX)) {
-						ed.errorFlagSet.clear(rawAttrs.CITY_INDEX); // 总之和candidate相等，那么把原来的错误位清除。
-					}
-				}
+			if(!candidateState.equals(candidate.getValue(rawAttrs.STATE))||
+					!candidateCity.equals(candidate.getValue(rawAttrs.CITY))){
+				System.out.println("candidate:" + candidateState + "," + candidateCity);
 			}
 		}
 	}
