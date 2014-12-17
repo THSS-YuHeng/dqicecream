@@ -80,27 +80,27 @@ public class ZipCityStateCross {
 				}
 			}
 		}
-		for(String kzipshort: zipShortStateMap.keySet()) {
-			System.out.print(kzipshort + ":");
-			for(String kstate: zipShortStateMap.get(kzipshort).keySet()) {
-				System.out.print("{" + kstate + ":" + zipShortStateMap.get(kzipshort).get(kstate).toString() + "}");
-			}
-			System.out.print("\n");
-		}
-		for(String kzip: zipStateCityCounterHashMap.keySet()) {
-			HashMap<String, HashMap<String, Integer>> stateCityCounter = zipStateCityCounterHashMap.get(kzip);
-			if( stateCityCounter.keySet().size() > 1 ) {
-				System.out.print(kzip + ":");
-				for(String kstate: zipStateCityCounterHashMap.get(kzip).keySet() ) {
-					System.out.print(" { " + kstate + " ");
-					for(String kcity: zipStateCityCounterHashMap.get(kzip).get(kstate).keySet()) {
-						System.out.print(kcity + " " + zipStateCityCounterHashMap.get(kzip).get(kstate).get(kcity) + " ");
-					}
-					System.out.print("}");
-				}
-				System.out.println();
-			}
-		}
+//		for(String kzipshort: zipShortStateMap.keySet()) {
+//			System.out.print(kzipshort + ":");
+//			for(String kstate: zipShortStateMap.get(kzipshort).keySet()) {
+//				System.out.print("{" + kstate + ":" + zipShortStateMap.get(kzipshort).get(kstate).toString() + "}");
+//			}
+//			System.out.print("\n");
+//		}
+//		for(String kzip: zipStateCityCounterHashMap.keySet()) {
+//			HashMap<String, HashMap<String, Integer>> stateCityCounter = zipStateCityCounterHashMap.get(kzip);
+//			if( stateCityCounter.keySet().size() > 1 ) {
+//				//System.out.print(kzip + ":");
+//				for(String kstate: zipStateCityCounterHashMap.get(kzip).keySet() ) {
+//					//System.out.print(" { " + kstate + " ");
+//					for(String kcity: zipStateCityCounterHashMap.get(kzip).get(kstate).keySet()) {
+//						//System.out.print(kcity + " " + zipStateCityCounterHashMap.get(kzip).get(kstate).get(kcity) + " ");
+//					}
+//					//System.out.print("}");
+//				}
+//				//System.out.println();
+//			}
+//		}
 		for(String kzip: zipStateCityCounterHashMap.keySet()) {
 			HashMap<String, HashMap<String, Integer>> stateCityCounter = zipStateCityCounterHashMap.get(kzip);
 			HashMap<String, Integer> stateCounter = zipStateCounterMap.get(kzip);
@@ -109,18 +109,18 @@ public class ZipCityStateCross {
 			if( stateCounter.keySet().size() > 1) {
 				// 1 zip 应该对应 only 1 state, 1 city
 				// > 1 说明是有outlier
-				System.out.print(kzip + ":");
-				for( String kstate: zipShortStateMap.get(kzip.subSequence(0, 3)).keySet()) {
-					System.out.print(kstate + " " + zipShortStateMap.get(kzip.subSequence(0, 3)).get(kstate).toString() + ",");
-				}
+//				System.out.print(kzip + ":");
+//				for( String kstate: zipShortStateMap.get(kzip.subSequence(0, 3)).keySet()) {
+//					System.out.print(kstate + " " + zipShortStateMap.get(kzip.subSequence(0, 3)).get(kstate).toString() + ",");
+//				}
 				for( String kstate: stateCounter.keySet() ) {
-					System.out.print(kstate + " ");
+					//System.out.print(kstate + " ");
 					if( zipShortStateMap.get(kzip.subSequence(0, 3)).get(kstate) > max) {
 						max = zipShortStateMap.get(kzip.subSequence(0, 3)).get(kstate);
 						candidateState = kstate;
 					}
 				}
-				System.out.println("candidate:" + candidateState);
+				//System.out.println("candidate:" + candidateState);
 			}
 			else {
 				candidateState = stateCounter.keySet().iterator().next();
@@ -137,7 +137,7 @@ public class ZipCityStateCross {
 						
 					}
 				}
-				System.out.println("candidate:" + candidateCity);
+				//System.out.println("candidate:" + candidateCity);
 			} else {
 				candidateCity = stateCityCounter.get(candidateState).keySet().iterator().next();
 			}
@@ -161,6 +161,23 @@ public class ZipCityStateCross {
 			if(!candidateState.equals(candidate.getValue(rawAttrs.STATE))||
 					!candidateCity.equals(candidate.getValue(rawAttrs.CITY))){
 				System.out.println("candidate:" + candidateState + "," + candidateCity);
+				candidate.setValue(rawAttrs.CITY, candidateCity);
+				candidate.setValue(rawAttrs.STATE, candidateState);
+			}
+			
+			for(int i = 0; i < correctLine.size()-1; i++ ) {
+				Tuple t = correctLine.get(i);
+				String ruid = t.getValue(rawAttrs.RUID);
+				ErrorData ed = errorTable.get(ruid);
+				if( ed == null) {ed = new ErrorData(); }
+				ed.dataTuple = t;
+				if( !candidateState.equals(t.getValue(rawAttrs.STATE)) ) {
+					ed.errorFlagSet.set(rawAttrs.STATE_INDEX);
+				}
+				if( !candidateCity.equals(t.getValue(rawAttrs.CITY)) ) {
+					ed.errorFlagSet.set(rawAttrs.CITY_INDEX);
+				}
+				errorTable.put(ruid, ed);
 			}
 		}
 	}
