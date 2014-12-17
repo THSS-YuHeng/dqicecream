@@ -173,9 +173,13 @@ public class ZipCityStateCross {
 				ed.dataTuple = t;
 				if( !candidateState.equals(t.getValue(rawAttrs.STATE)) ) {
 					ed.errorFlagSet.set(rawAttrs.STATE_INDEX);
+				} else {
+					ed.errorFlagSet.clear(rawAttrs.STATE_INDEX);
 				}
 				if( !candidateCity.equals(t.getValue(rawAttrs.CITY)) ) {
 					ed.errorFlagSet.set(rawAttrs.CITY_INDEX);
+				} else {
+					ed.errorFlagSet.clear(rawAttrs.CITY_INDEX);
 				}
 				errorTable.put(ruid, ed);
 			}

@@ -110,7 +110,7 @@ public class DataRepair {
 				list.add(tuple);
 			}
 		}
-
+		zipCitystateCrocc.findOutlierAndRepair(correctTable, errorTable);
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
@@ -133,9 +133,8 @@ public class DataRepair {
 			} else {
 				ssnCross.add_single(candidate.getValue(rawAttrs.SSN), cuid);
 			}
-		}
+		}	
 		salaryTaxCross.findOutlier();
-		zipCitystateCrocc.findOutlierAndRepair(correctTable, errorTable);
 		for (String key: correctTable.keySet()) {
 			LinkedList<Tuple> correctLine = correctTable.get(key);
 			Tuple candidate = correctLine.getLast();
