@@ -31,28 +31,28 @@ public class BirthAgeValidator {
 			correctAge = correct.getValue(rawAttrs.AGE);
 		}
 		boolean correctFind = false;
-		for (int i = 0; i < linkedList.size() - 1; i++) {
-			Tuple tuple = linkedList.get(i);
-			if (REFIND) {
-				//impossible to find truth
-			} else {
-				int a = 2013 - Integer.parseInt(correctBirth.split("-")[2]);
-				correctAge = a + "";
-				if (!tuple.getValue(rawAttrs.AGE).equals(correctAge)) {
-					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
-						ErrorData edata = new ErrorData();
-						edata.dataTuple = tuple;
-						edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					} else {
-						ErrorData edata = errorTable.get(tuple
-								.getValue(rawAttrs.RUID));
-						edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
-						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
-					}
-				}
-			}
-		}
+//		for (int i = 0; i < linkedList.size() - 1; i++) {
+//			Tuple tuple = linkedList.get(i);
+//			if (REFIND) {
+//				//impossible to find truth
+//			} else {
+//				int a = 2013 - Integer.parseInt(correctBirth.split("-")[2]);
+//				correctAge = a + "";
+//				if (!tuple.getValue(rawAttrs.AGE).equals(correctAge)) {
+//					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+//						ErrorData edata = new ErrorData();
+//						edata.dataTuple = tuple;
+//						edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
+//						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+//					} else {
+//						ErrorData edata = errorTable.get(tuple
+//								.getValue(rawAttrs.RUID));
+//						edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
+//						errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+//					}
+//				}
+//			}
+//		}
 		if(REFIND) {
 			// if no correct birth
 			// is age correct?
@@ -73,7 +73,7 @@ public class BirthAgeValidator {
 				String ruid = linkedList.get(i).getValue(rawAttrs.RUID);
 				Tuple curTuple;
 				if( errorTable.get(ruid) == null ) { curTuple = linkedList.get(i); }
-				else { curTuple = errorTable.get(ruid).dataTuple; }
+				else { curTuple = errorTable.get(ruid).dataTuple.clone(); }
 				String[] birthSplit = curTuple.getValue(rawAttrs.BIRTH).split("-");
 				int[] buffer = new int[3];
 				if ( birthSplit.length == 3) {
