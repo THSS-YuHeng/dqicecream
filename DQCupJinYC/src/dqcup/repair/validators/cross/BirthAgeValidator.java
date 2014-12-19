@@ -25,6 +25,7 @@ public class BirthAgeValidator {
 		String correctAge = "";
 		boolean REFIND = false;
 		String cuid = correct.getValue(rawAttrs.CUID);
+		REFIND = true;
 		if (correctBirth == null || correctBirth.equals("") || correctBirth.equals(" ")) {
 			REFIND = true;
 			correctAge = correct.getValue(rawAttrs.AGE);
@@ -58,24 +59,38 @@ public class BirthAgeValidator {
 			HashMap<Integer, Integer> dayCounterHashMap = new HashMap<Integer, Integer>();
 			HashMap<Integer, Integer> monthCounterHashMap = new HashMap<Integer, Integer>();
 			HashMap<Integer, Integer> yearCounterHashMap = new HashMap<Integer, Integer>();
-			
+			HashMap<Integer, Integer> ageCounterHashMap = new HashMap<Integer, Integer>();
+			int candidateDay = -1, candidateMonth = -1, candidateYear = -1;
+			int candidateAge = -1;
 			for (int i = 0; i < linkedList.size() - 1; i++) {
-				int candidateAge = parseInt(correctAge, -1);
-				int candidateDay = -1, candidateMonth = -1, candidateYear = -1;
-				String[] birthSplit = correctBirth.split("-");
+				candidateAge = parseInt(linkedList.get(i).getValue(rawAttrs.AGE), -1);
+				if(candidateAge > 23 && candidateAge < 84) {
+					if( !ageCounterHashMap.containsKey(candidateAge) ) {
+						ageCounterHashMap.put(candidateAge, 0);
+					}
+					ageCounterHashMap.put(candidateAge, ageCounterHashMap.get(candidateAge)+1);
+				}
+				String ruid = linkedList.get(i).getValue(rawAttrs.RUID);
+				Tuple curTuple;
+				if( errorTable.get(ruid) == null ) { curTuple = linkedList.get(i); }
+				else { curTuple = errorTable.get(ruid).dataTuple; }
+				String[] birthSplit = curTuple.getValue(rawAttrs.BIRTH).split("-");
 				int[] buffer = new int[3];
 				if ( birthSplit.length == 3) {
 					for (int j = 0; j < buffer.length; j++) {
 						buffer[j] = parseInt(birthSplit[j], -1);
 					}
+					candidateDay = -1;
+					candidateMonth = -1;
+					candidateYear = -1;
 					for (int j = 0; j < buffer.length; j++) {
-						if( buffer[j] > 1922) {
+						if( buffer[j] > 1922 && buffer[j] < 2014) {
 							candidateYear = buffer[j];
 							if( !yearCounterHashMap.containsKey(candidateYear) ) {
 								yearCounterHashMap.put(candidateYear, 0);
 							}
 							yearCounterHashMap.put(candidateYear, yearCounterHashMap.get(candidateYear)+1);
-						} else if( buffer[j] < 13 && buffer[j] > 0) {
+						} else if( buffer[j] < 13 && buffer[j] > 0 && candidateMonth < 0) {
 							candidateMonth = buffer[j];
 							if( !monthCounterHashMap.containsKey(candidateMonth) ) {
 								monthCounterHashMap.put(candidateMonth, 0);
@@ -89,18 +104,69 @@ public class BirthAgeValidator {
 							dayCounterHashMap.put(candidateDay, dayCounterHashMap.get(candidateDay)+1);
 						}
 					}
-					int max = 0;
-					for(Integer key: yearCounterHashMap.keySet()) {
-						if( yearCounterHashMap.get(key) > max){ candidateYear = key; max = yearCounterHashMap.get(key); }
+					
+				}
+			}
+			int max = 0;
+			for(Integer key: yearCounterHashMap.keySet()) {
+				if( yearCounterHashMap.get(key) > max){ candidateYear = key; max = yearCounterHashMap.get(key); }
+			}
+			int agemax = 0;
+			for(Integer key: ageCounterHashMap.keySet()) {
+				if( ageCounterHashMap.get(key) > agemax){ candidateAge = key; agemax = ageCounterHashMap.get(key); }
+			}
+			if(candidateYear+candidateAge != 2013) {
+				// year age conflict
+				if( agemax > max ) {
+					// pick the one with more count
+					candidateYear = 2013 - candidateAge;
+				}
+				else {
+					candidateAge = 2013 - candidateYear;
+				}
+			}
+			max = 0;
+			for(Integer key: monthCounterHashMap.keySet()) {
+				if( monthCounterHashMap.get(key) > max){ candidateMonth = key; max = monthCounterHashMap.get(key); }
+			}
+			max = 0;
+			for(Integer key: dayCounterHashMap.keySet()) {
+				if( dayCounterHashMap.get(key) > max){ candidateDay = key; max = dayCounterHashMap.get(key); }
+			}
+			correctAge = Integer.toString(candidateAge);
+			correctBirth = Integer.toString(candidateMonth) + "-"
+					+ Integer.toString(candidateDay ) + "-"
+					+ Integer.toString(candidateYear ) + "";
+			//System.out.println(correctBirth);
+			for (int i = 0; i < linkedList.size() - 1; i++) {
+				Tuple tuple = linkedList.get(i);
+				if (!tuple.getValue(rawAttrs.AGE).equals(correctAge)) {
+					ErrorData edata;
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.originalTuple = tuple.clone();
+						
+					} else {
+						edata = errorTable.get(tuple
+								.getValue(rawAttrs.RUID));
 					}
-					max = 0;
-					for(Integer key: monthCounterHashMap.keySet()) {
-						if( monthCounterHashMap.get(key) > max){ candidateMonth = key; max = monthCounterHashMap.get(key); }
+					edata.errorFlagSet.set(rawAttrs.AGE_INDEX);
+					errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
+				}
+				if (!tuple.getValue(rawAttrs.BIRTH).equals(correctBirth)) {
+					ErrorData edata;
+					if (errorTable.get(tuple.getValue(rawAttrs.RUID)) == null) {
+						edata = new ErrorData();
+						edata.dataTuple = tuple;
+						edata.originalTuple = tuple.clone();
+						
+					} else {
+						edata = errorTable.get(tuple
+								.getValue(rawAttrs.RUID));
 					}
-					max = 0;
-					for(Integer key: dayCounterHashMap.keySet()) {
-						if( dayCounterHashMap.get(key) > max){ candidateDay = key; max = dayCounterHashMap.get(key); }
-					}
+					edata.errorFlagSet.set(rawAttrs.BIRTH_INDEX);
+					errorTable.put(tuple.getValue(rawAttrs.RUID), edata);
 				}
 			}
 		}
